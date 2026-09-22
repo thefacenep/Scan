@@ -1,11 +1,10 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
-import { FeedbackProvider } from './context/FeedbackContext';
 import FeedbackForm from './components/FeedbackForm';
 import AdminLogin from './components/AdminLogin';
-import Dashboard from './components/Dashboard';
-import TrackingPage from './components/TrackingPage';
+import AdminDashboard from './components/AdminDashboard';
+import TrackComplaint from './components/TrackComplaint';
 import QRPrint from './components/QRPrint';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -20,23 +19,21 @@ export default function App() {
   return (
     <BrowserRouter>
       <LanguageProvider>
-        <FeedbackProvider>
-          <Routes>
-            <Route path="/" element={<FeedbackForm />} />
-            <Route path="/feedback" element={<FeedbackForm />} />
-            <Route path="/track" element={<TrackingPage />} />
-            <Route path="/qr-print" element={<QRPrint />} />
-            <Route path="/admin" element={<AdminLogin />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </FeedbackProvider>
+        <Routes>
+          <Route path="/" element={<FeedbackForm />} />
+          <Route path="/feedback" element={<FeedbackForm />} />
+          <Route path="/track" element={<TrackComplaint />} />
+          <Route path="/qr-print" element={<QRPrint />} />
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
       </LanguageProvider>
     </BrowserRouter>
   );
