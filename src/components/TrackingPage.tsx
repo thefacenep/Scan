@@ -3,15 +3,34 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useFeedback } from '../context/FeedbackContext';
 import { translations } from '../translations';
-import { Feedback, Category } from '../types';
+import { Feedback, Category, ServiceType } from '../types';
 
-const ratingEmojis = ['😡', '😞', '😐', '😊', '🤩'];
+const ratingEmojis = ['😞', '😕', '😐', '😊', '😃'];
 
 const categoryLabels: Record<Category, { np: string; en: string }> = {
   praise: { np: 'प्रशंसा', en: 'Praise' },
   suggestion: { np: 'सुझाव', en: 'Suggestion' },
   complaint: { np: 'उजुरी', en: 'Complaint' },
   grievance: { np: 'गुनासो', en: 'Grievance' },
+};
+
+const serviceLabels: Record<ServiceType, { np: string; en: string }> = {
+  help_desk: { np: 'हेल्प डेस्क', en: 'Help Desk' },
+  tax_clearance: { np: 'कर छुट', en: 'Tax Clearance' },
+  pdcr: { np: 'PDCR', en: 'PDCR' },
+  file_transfer: { np: 'फाइल स्थानान्तरण', en: 'File Transfer' },
+  personal_pan: { np: 'व्यक्तिगत PAN', en: 'Personal PAN' },
+  business_pan: { np: 'व्यावसायिक PAN', en: 'Business PAN' },
+  business_close: { np: 'व्यापार बन्द', en: 'Business Close' },
+  business_deregistration: { np: 'व्यापार दर्ता खारेज', en: 'Business Deregistration' },
+  scheme_apply: { np: 'स्किम आवेदन', en: 'Scheme Apply' },
+  vat_adjustment: { np: 'VAT समायोजन', en: 'VAT Adjustment' },
+  due_clearance: { np: 'बाँकी रकम भुक्तानी', en: 'Due Clearance' },
+  bank_reactivation: { np: 'बैंक पुनःसक्रिय', en: 'Bank Reactivation' },
+  tax_audit: { np: 'कर लेखापरीक्षा', en: 'Tax Audit' },
+  investigation: { np: 'अनुसन्धान', en: 'Investigation' },
+  complaint: { np: 'उजुरी', en: 'Complaint' },
+  others: { np: 'अन्य', en: 'Others' },
 };
 
 export default function TrackingPage() {
@@ -47,15 +66,15 @@ export default function TrackingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50 to-blue-100 pb-8">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-red-700 rounded-full flex items-center justify-center">
-              <span className="text-white text-lg font-bold">ने</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center shadow-md">
+              <span className="text-white text-sm font-bold">नेरा</span>
             </div>
             <div>
               <h1 className="text-sm font-bold text-gray-800">{t.officeTitle}</h1>
-              <p className="text-xs text-gray-500">{t.trackingResult}</p>
+              <p className="text-[10px] text-gray-500">{t.trackingResult}</p>
             </div>
           </div>
           <button
@@ -69,7 +88,7 @@ export default function TrackingPage() {
 
       <main className="max-w-lg mx-auto px-4 pt-6">
         {/* Search Box */}
-        <div className="bg-white rounded-2xl shadow-lg p-5 mb-4">
+        <div className="bg-white rounded-2xl shadow-lg p-5 mb-4 border border-gray-100">
           <h2 className="text-lg font-bold text-gray-800 mb-4 text-center">{t.searchByCode}</h2>
           <form onSubmit={handleSearch} className="flex gap-2">
             <input
@@ -90,7 +109,7 @@ export default function TrackingPage() {
 
         {/* Result */}
         {searched && (
-          <div className="bg-white rounded-2xl shadow-lg p-5">
+          <div className="bg-white rounded-2xl shadow-lg p-5 border border-gray-100">
             {result ? (
               <div className="space-y-4">
                 <div className="text-center">
@@ -103,11 +122,16 @@ export default function TrackingPage() {
                   </p>
                 </div>
 
+                <div className="flex gap-2 justify-center flex-wrap">
+                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                    {serviceLabels[result.serviceType]?.[lang] || result.serviceType}
+                  </span>
+                  <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                    {categoryLabels[result.category][lang]}
+                  </span>
+                </div>
+
                 <div className="bg-gray-50 rounded-xl p-4 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">{t.categoryLabel}:</span>
-                    <span className="font-medium">{categoryLabels[result.category][lang]}</span>
-                  </div>
                   {result.dateOfVisit && (
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">{t.dateOfVisit}:</span>
@@ -122,6 +146,14 @@ export default function TrackingPage() {
                     <span className="text-gray-500">{t.staffRating}:</span>
                     <span className="text-lg">{ratingEmojis[result.staffBehavior - 1] || '-'}</span>
                   </div>
+                  {result.waitingTime && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">{t.waitingTimeLabel}:</span>
+                      <span className="text-xs font-medium text-gray-700">
+                        {(t.waitingOptions as Record<string, string>)[result.waitingTime]}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {result.description && (

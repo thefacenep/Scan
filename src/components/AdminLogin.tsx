@@ -24,18 +24,19 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50 to-blue-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-lg p-6 w-full max-w-sm">
+      <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm border border-gray-100">
         <div className="text-center mb-6">
-          <div className="w-14 h-14 bg-red-700 rounded-full flex items-center justify-center mx-auto mb-3">
-            <span className="text-white text-xl font-bold">ने</span>
+          <div className="w-14 h-14 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-3 shadow-md">
+            <span className="text-white text-xl font-bold">नेरा</span>
           </div>
           <h2 className="text-lg font-bold text-gray-800">{t.staffLogin}</h2>
           <p className="text-xs text-gray-500 mt-1">{t.officeTitle}</p>
+          <p className="text-[10px] text-gray-400">{t.ministry}</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2 rounded-xl">
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-2.5 rounded-xl">
               {error}
             </div>
           )}
@@ -63,13 +64,13 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            className="w-full h-12 bg-red-700 text-white font-bold rounded-xl hover:bg-red-800 transition-colors"
+            className="w-full h-12 bg-red-700 text-white font-bold rounded-xl hover:bg-red-800 transition-colors shadow-md"
           >
             {t.login}
           </button>
         </form>
 
-        <div className="mt-4 text-center">
+        <div className="mt-5 text-center">
           <a href="/" className="text-xs text-gray-400 hover:text-gray-600 underline">
             ← {t.backToForm}
           </a>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { useFeedback } from '../context/FeedbackContext';
 import { translations } from '../translations';
-import { Feedback, Category, WaitingTime } from '../types';
+import { Feedback, Category, WaitingTime, ServiceType } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 
 function generateCode(): string {
@@ -11,11 +11,11 @@ function generateCode(): string {
 }
 
 const ratingEmojis = [
-  { value: 1, emoji: '😡', label: 'Very Bad' },
-  { value: 2, emoji: '😞', label: 'Bad' },
-  { value: 3, emoji: '😐', label: 'Average' },
-  { value: 4, emoji: '😊', label: 'Good' },
-  { value: 5, emoji: '🤩', label: 'Excellent' },
+  { value: 1, emoji: '😞' },
+  { value: 2, emoji: '😕' },
+  { value: 3, emoji: '😐' },
+  { value: 4, emoji: '😊' },
+  { value: 5, emoji: '😃' },
 ];
 
 const waitingTimeOptions: WaitingTime[] = [
@@ -28,15 +28,46 @@ const waitingTimeOptions: WaitingTime[] = [
   'more_than_3_days',
 ];
 
+const waitingTimeColors = [
+  'bg-green-100 border-green-300 text-green-800',
+  'bg-emerald-100 border-emerald-300 text-emerald-800',
+  'bg-blue-100 border-blue-300 text-blue-800',
+  'bg-yellow-100 border-yellow-300 text-yellow-800',
+  'bg-orange-100 border-orange-300 text-orange-800',
+  'bg-amber-100 border-amber-300 text-amber-800',
+  'bg-red-100 border-red-300 text-red-800',
+];
+
+const serviceTypes: ServiceType[] = [
+  'help_desk',
+  'tax_clearance',
+  'pdcr',
+  'file_transfer',
+  'personal_pan',
+  'business_pan',
+  'business_close',
+  'business_deregistration',
+  'scheme_apply',
+  'vat_adjustment',
+  'due_clearance',
+  'bank_reactivation',
+  'tax_audit',
+  'investigation',
+  'complaint',
+  'others',
+];
+
 export default function FeedbackForm() {
   const { lang, setLang } = useLanguage();
   const { addFeedback } = useFeedback();
   const t = translations[lang];
 
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const [serviceType, setServiceType] = useState<ServiceType>('help_desk');
   const [name, setName] = useState('');
   const [pan, setPan] = useState('');
   const [contact, setContact] = useState('');
+  const [email, setEmail] = useState('');
   const [dateOfVisit, setDateOfVisit] = useState('');
   const [category, setCategory] = useState<Category>('complaint');
   const [overallService, setOverallService] = useState(0);
@@ -46,11 +77,11 @@ export default function FeedbackForm() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [trackingCode, setTrackingCode] = useState('');
 
-  const categories: { key: Category; label: string; color: string }[] = [
-    { key: 'praise', label: t.praise, color: 'bg-green-100 text-green-700 border-green-300' },
-    { key: 'suggestion', label: t.suggestion, color: 'bg-blue-100 text-blue-700 border-blue-300' },
-    { key: 'complaint', label: t.complaint, color: 'bg-red-100 text-red-700 border-red-300' },
-    { key: 'grievance', label: t.grievance, color: 'bg-orange-100 text-orange-700 border-orange-300' },
+  const categories: { key: Category; label: string; activeColor: string }[] = [
+    { key: 'praise', label: t.praise, activeColor: 'bg-green-500 text-white shadow-lg shadow-green-200' },
+    { key: 'suggestion', label: t.suggestion, activeColor: 'bg-blue-500 text-white shadow-lg shadow-blue-200' },
+    { key: 'complaint', label: t.complaint, activeColor: 'bg-red-500 text-white shadow-lg shadow-red-200' },
+    { key: 'grievance', label: t.grievance, activeColor: 'bg-orange-500 text-white shadow-lg shadow-orange-200' },
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -59,10 +90,12 @@ export default function FeedbackForm() {
     const feedback: Feedback = {
       id: uuidv4(),
       code: generateCode(),
+      serviceType,
       isAnonymous,
       name: isAnonymous ? '' : name,
       pan: isAnonymous ? '' : pan,
       contact: isAnonymous ? '' : contact,
+      email: isAnonymous ? '' : email,
       dateOfVisit,
       category,
       overallService,
@@ -79,9 +112,11 @@ export default function FeedbackForm() {
 
     // Reset form
     setIsAnonymous(false);
+    setServiceType('help_desk');
     setName('');
     setPan('');
     setContact('');
+    setEmail('');
     setDateOfVisit('');
     setCategory('complaint');
     setOverallService(0);
@@ -91,90 +126,126 @@ export default function FeedbackForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-sky-50 to-blue-100 pb-24">
+    <div className="min-h-screen bg-gradient-to-b from-sky-50 via-blue-50 to-indigo-50 pb-28">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
-        <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-red-700 rounded-full flex items-center justify-center">
-              <span className="text-white text-lg font-bold">ने</span>
+      <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
+        <div className="max-w-lg mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center shadow-md">
+                <span className="text-white text-base font-bold">नेरा</span>
+              </div>
+              <div>
+                <h1 className="text-sm font-bold text-gray-800 leading-tight">{t.officeTitle}</h1>
+                <p className="text-[10px] text-gray-500">{t.ministry}</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-sm font-bold text-gray-800 leading-tight">{t.officeTitle}</h1>
-              <p className="text-xs text-gray-500">{t.officeSubtitle}</p>
-            </div>
+            <button
+              onClick={() => setLang(lang === 'np' ? 'en' : 'np')}
+              className="px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-red-50 to-red-100 text-red-700 rounded-full border border-red-200 hover:from-red-100 hover:to-red-200 transition-all shadow-sm"
+            >
+              {lang === 'np' ? 'EN' : 'NP'}
+            </button>
           </div>
-          <button
-            onClick={() => setLang(lang === 'np' ? 'en' : 'np')}
-            className="px-3 py-1.5 text-xs font-semibold bg-gray-100 rounded-full border border-gray-200 hover:bg-gray-200 transition-colors"
-          >
-            {lang === 'np' ? 'EN' : 'NP'}
-          </button>
+          <p className="text-[11px] text-gray-500 mt-1 text-center">{t.officeSubtitle}</p>
         </div>
       </header>
 
       {/* Form */}
-      <main className="max-w-lg mx-auto px-4 pt-6">
-        <div className="bg-white rounded-2xl shadow-lg p-5 sm:p-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-800 mb-6">
-            {t.formTitle}
-          </h2>
+      <main className="max-w-lg mx-auto px-4 pt-5">
+        <div className="bg-white rounded-2xl shadow-xl p-5 sm:p-6 border border-gray-100">
+          {/* Form Title */}
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-extrabold text-gray-800">{t.formTitle}</h2>
+            <p className="text-sm text-gray-500 mt-0.5">{t.formTitleEn}</p>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Service Selection */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                {t.serviceLabel}
+              </label>
+              <p className="text-xs text-gray-400 mb-2">{t.serviceLabelEn}</p>
+              <select
+                value={serviceType}
+                onChange={(e) => setServiceType(e.target.value as ServiceType)}
+                className="w-full h-12 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none text-base bg-white transition-all appearance-none"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', backgroundSize: '20px' }}
+              >
+                {serviceTypes.map((st) => (
+                  <option key={st} value={st}>
+                    {(t.serviceOptions as Record<string, string>)[st]}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Anonymous Checkbox */}
-            <label className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl cursor-pointer border border-gray-100">
+            <label className="flex items-center gap-3 p-3.5 bg-gray-50 rounded-xl cursor-pointer border border-gray-100 hover:bg-gray-100 transition-colors">
               <input
                 type="checkbox"
                 checked={isAnonymous}
                 onChange={(e) => setIsAnonymous(e.target.checked)}
                 className="w-5 h-5 text-red-600 rounded focus:ring-red-500"
               />
-              <span className="text-sm font-medium text-gray-700">{t.anonymous}</span>
+              <div>
+                <span className="text-sm font-medium text-gray-700">{t.anonymous}</span>
+                <span className="text-xs text-gray-400 block">{t.anonymousEn}</span>
+              </div>
             </label>
 
-            {/* Name */}
+            {/* Personal Fields */}
             {!isAnonymous && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">{t.name}</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder={t.namePlaceholder}
-                  className="w-full h-12 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none text-base transition-all"
-                />
-              </div>
-            )}
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">{t.name}</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder={t.namePlaceholder}
+                    className="w-full h-12 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none text-base transition-all"
+                  />
+                </div>
 
-            {/* PAN */}
-            {!isAnonymous && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">{t.pan}</label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  value={pan}
-                  onChange={(e) => setPan(e.target.value.replace(/[^0-9]/g, ''))}
-                  placeholder={t.panPlaceholder}
-                  className="w-full h-12 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none text-base transition-all"
-                />
-              </div>
-            )}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">{t.pan}</label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={pan}
+                      onChange={(e) => setPan(e.target.value.replace(/[^0-9]/g, ''))}
+                      placeholder={t.panPlaceholder}
+                      className="w-full h-12 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none text-base transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">{t.contact}</label>
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      value={contact}
+                      onChange={(e) => setContact(e.target.value.replace(/[^0-9]/g, ''))}
+                      placeholder={t.contactPlaceholder}
+                      className="w-full h-12 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none text-base transition-all"
+                    />
+                  </div>
+                </div>
 
-            {/* Contact */}
-            {!isAnonymous && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">{t.contact}</label>
-                <input
-                  type="tel"
-                  inputMode="numeric"
-                  value={contact}
-                  onChange={(e) => setContact(e.target.value.replace(/[^0-9]/g, ''))}
-                  placeholder={t.contactPlaceholder}
-                  className="w-full h-12 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none text-base transition-all"
-                />
-              </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">{t.email}</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t.emailPlaceholder}
+                    className="w-full h-12 px-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-200 focus:border-red-400 outline-none text-base transition-all"
+                  />
+                </div>
+              </>
             )}
 
             {/* Date of Visit */}
@@ -197,10 +268,10 @@ export default function FeedbackForm() {
                     key={cat.key}
                     type="button"
                     onClick={() => setCategory(cat.key)}
-                    className={`h-12 px-3 rounded-xl border-2 font-medium text-sm transition-all ${
+                    className={`h-12 px-3 rounded-xl border-2 font-semibold text-sm transition-all ${
                       category === cat.key
-                        ? `${cat.color} border-current shadow-sm scale-[1.02]`
-                        : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
+                        ? cat.activeColor
+                        : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                     }`}
                   >
                     {cat.label}
@@ -211,20 +282,24 @@ export default function FeedbackForm() {
 
             {/* Overall Service Rating */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">{t.overallService}</label>
-              <div className="flex justify-between gap-1">
-                {ratingEmojis.map((r) => (
+              <label className="block text-sm font-semibold text-gray-700 mb-0.5">{t.overallService}</label>
+              <p className="text-xs text-gray-400 mb-3">{t.overallServiceEn}</p>
+              <div className="flex justify-between gap-1.5">
+                {ratingEmojis.map((r, idx) => (
                   <button
                     key={r.value}
                     type="button"
                     onClick={() => setOverallService(r.value)}
-                    className={`flex-1 h-14 rounded-xl text-2xl transition-all transform ${
+                    className={`flex-1 flex flex-col items-center py-2 rounded-xl transition-all transform ${
                       overallService === r.value
-                        ? 'bg-yellow-100 scale-110 shadow-md ring-2 ring-yellow-300'
+                        ? 'bg-yellow-50 scale-110 shadow-lg ring-2 ring-yellow-300'
                         : 'bg-gray-50 hover:bg-gray-100 hover:scale-105'
                     }`}
                   >
-                    {r.emoji}
+                    <span className="text-3xl drop-shadow-md" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>{r.emoji}</span>
+                    <span className="text-[9px] mt-1 text-gray-500 font-medium">
+                      {(t.ratingLabels as Record<number, string>)[r.value]}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -232,20 +307,24 @@ export default function FeedbackForm() {
 
             {/* Staff Behavior Rating */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">{t.staffBehavior}</label>
-              <div className="flex justify-between gap-1">
-                {ratingEmojis.map((r) => (
+              <label className="block text-sm font-semibold text-gray-700 mb-0.5">{t.staffBehavior}</label>
+              <p className="text-xs text-gray-400 mb-3">{t.staffBehaviorEn}</p>
+              <div className="flex justify-between gap-1.5">
+                {ratingEmojis.map((r, idx) => (
                   <button
                     key={r.value}
                     type="button"
                     onClick={() => setStaffBehavior(r.value)}
-                    className={`flex-1 h-14 rounded-xl text-2xl transition-all transform ${
+                    className={`flex-1 flex flex-col items-center py-2 rounded-xl transition-all transform ${
                       staffBehavior === r.value
-                        ? 'bg-yellow-100 scale-110 shadow-md ring-2 ring-yellow-300'
+                        ? 'bg-yellow-50 scale-110 shadow-lg ring-2 ring-yellow-300'
                         : 'bg-gray-50 hover:bg-gray-100 hover:scale-105'
                     }`}
                   >
-                    {r.emoji}
+                    <span className="text-3xl drop-shadow-md" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>{r.emoji}</span>
+                    <span className="text-[9px] mt-1 text-gray-500 font-medium">
+                      {(t.ratingLabels as Record<number, string>)[r.value]}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -253,20 +332,22 @@ export default function FeedbackForm() {
 
             {/* Waiting Time */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">{t.waitingTimeQ}</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-0.5">{t.waitingTimeQ}</label>
+              <p className="text-xs text-gray-400 mb-3">{t.waitingTimeEn}</p>
               <div className="grid grid-cols-2 gap-2">
-                {waitingTimeOptions.map((wt) => (
+                {waitingTimeOptions.map((wt, idx) => (
                   <button
                     key={wt}
                     type="button"
                     onClick={() => setWaitingTime(wt)}
-                    className={`h-12 px-2 rounded-xl border-2 text-xs font-medium transition-all ${
+                    className={`h-12 px-2 rounded-xl border-2 text-xs font-semibold transition-all ${
                       waitingTime === wt
-                        ? 'bg-purple-100 text-purple-700 border-purple-300 shadow-sm'
-                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                        ? `${waitingTimeColors[idx]} shadow-md scale-[1.02] ring-2 ring-offset-1 ring-current/20`
+                        : `${waitingTimeColors[idx]} opacity-70 hover:opacity-100`
                     }`}
                   >
-                    {(t.waitingOptions as Record<string, string>)[wt]}
+                    <span className="block">{(t.waitingOptions as Record<string, string>)[wt]}</span>
+                    <span className="block text-[9px] opacity-70">{(t.waitingOptionsEn as Record<string, string>)[wt]}</span>
                   </button>
                 ))}
               </div>
@@ -274,7 +355,8 @@ export default function FeedbackForm() {
 
             {/* Description Text Area */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">{t.description}</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-0.5">{t.description}</label>
+              <p className="text-xs text-gray-400 mb-2">{t.descriptionEn}</p>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -285,34 +367,91 @@ export default function FeedbackForm() {
               />
             </div>
 
-            {/* Submit Button - Sticky on mobile */}
+            {/* Submit Button */}
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full h-14 bg-[#DC143C] text-white text-lg font-bold rounded-xl shadow-lg hover:bg-[#b8102f] active:scale-[0.98] transition-all"
+                className="w-full h-14 bg-[#DC143C] text-white text-lg font-bold rounded-xl shadow-lg shadow-red-200 hover:bg-[#b8102f] active:scale-[0.98] transition-all"
               >
-                {t.submit}
+                {t.submit} / {t.submitEn}
               </button>
             </div>
           </form>
         </div>
+
+        {/* Footer */}
+        <footer className="mt-6 pb-4 space-y-4">
+          {/* Contact Info */}
+          <div className="bg-white/80 rounded-xl p-4 border border-gray-100 text-center space-y-2">
+            <p className="text-xs text-gray-500">📍 {t.location}</p>
+            <p className="text-xs text-gray-500">
+              📞{' '}
+              <a href="tel:01-519296" className="text-red-700 hover:underline">०१-५१९२९६</a>,{' '}
+              <a href="tel:01-519947" className="text-red-700 hover:underline">०१-५१९९४७</a>,{' '}
+              <a href="tel:01-5199348" className="text-red-700 hover:underline">०१-५१९९३४८</a>
+            </p>
+            <p className="text-xs text-gray-500">
+              ✉️{' '}
+              <a href="mailto:iro-koteshwor@ird.gov.np" className="text-red-700 hover:underline">
+                iro-koteshwor@ird.gov.np
+              </a>
+            </p>
+          </div>
+
+          {/* Key Staff */}
+          <div className="bg-white/80 rounded-xl p-4 border border-gray-100">
+            <p className="text-xs font-semibold text-gray-600 text-center mb-2">{t.keyStaff}</p>
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-gray-700 font-medium">{t.staff1}</span>
+                <span className="text-gray-500">{t.staff1Role}</span>
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-gray-700 font-medium">{t.staff2}</span>
+                <span className="text-gray-500">{t.staff2Role}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Links */}
+          <div className="flex justify-center gap-4">
+            <a
+              href="/track"
+              className="text-xs text-red-700 hover:text-red-800 font-medium underline"
+            >
+              🔍 {t.trackBtn}
+            </a>
+            <a
+              href="/qr-print"
+              className="text-xs text-gray-500 hover:text-gray-700 underline"
+            >
+              📱 {t.printQR}
+            </a>
+            <a
+              href="/admin"
+              className="text-xs text-gray-400 hover:text-gray-600 underline"
+            >
+              🔐 {t.staffLogin}
+            </a>
+          </div>
+        </footer>
       </main>
 
-      {/* Footer */}
-      <footer className="max-w-lg mx-auto px-4 py-6 text-center space-y-2">
-        <a
-          href="/track"
-          className="block text-sm text-red-700 hover:text-red-800 font-medium underline"
+      {/* Sticky Submit on Mobile */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-gray-200 p-3 sm:hidden z-30">
+        <button
+          type="button"
+          onClick={() => {
+            const form = document.querySelector('form') as HTMLFormElement;
+            if (form) {
+              form.requestSubmit();
+            }
+          }}
+          className="w-full h-12 bg-[#DC143C] text-white text-base font-bold rounded-xl shadow-lg active:scale-[0.98] transition-transform"
         >
-          🔍 {t.trackBtn}
-        </a>
-        <a
-          href="/admin-login"
-          className="block text-xs text-gray-400 hover:text-gray-600 underline"
-        >
-          {t.staffLogin}
-        </a>
-      </footer>
+          {t.submit} / {t.submitEn}
+        </button>
+      </div>
 
       {/* Success Modal */}
       {showSuccess && (
@@ -324,8 +463,8 @@ export default function FeedbackForm() {
               </div>
               <h3 className="text-lg font-bold text-gray-800 mb-2">{t.successTitle}</h3>
               <p className="text-sm text-gray-600 mb-3">{t.successMsg}</p>
-              <div className="bg-gray-100 rounded-xl p-3 mb-5">
-                <span className="text-xl font-mono font-bold text-red-700">{trackingCode}</span>
+              <div className="bg-gray-100 rounded-xl p-4 mb-5">
+                <span className="text-2xl font-mono font-bold text-red-700">{trackingCode}</span>
               </div>
               <div className="flex gap-3">
                 <button
