@@ -22,22 +22,22 @@ const categoryColors: Record<Category, string> = {
 };
 
 const serviceLabels: Record<ServiceType, { np: string; en: string }> = {
-  help_desk: { np: 'हेल्प डेस्क', en: 'Help Desk' },
-  tax_clearance: { np: 'कर छुट', en: 'Tax Clearance' },
-  pdcr: { np: 'PDCR', en: 'PDCR' },
-  file_transfer: { np: 'फाइल स्थानान्तरण', en: 'File Transfer' },
-  personal_pan: { np: 'व्यक्तिगत PAN', en: 'Personal PAN' },
-  business_pan: { np: 'व्यावसायिक PAN', en: 'Business PAN' },
-  business_close: { np: 'व्यापार बन्द', en: 'Business Close' },
-  business_deregistration: { np: 'व्यापार दर्ता खारेज', en: 'Business Deregistration' },
-  scheme_apply: { np: 'स्किम आवेदन', en: 'Scheme Apply' },
-  vat_adjustment: { np: 'VAT समायोजन', en: 'VAT Adjustment' },
-  due_clearance: { np: 'बाँकी रकम भुक्तानी', en: 'Due Clearance' },
-  bank_reactivation: { np: 'बैंक पुनःसक्रिय', en: 'Bank Reactivation' },
-  tax_audit: { np: 'कर लेखापरीक्षा', en: 'Tax Audit' },
+  help_desk: { np: 'करदाता सहायता कक्ष', en: 'Help Desk' },
+  tax_clearance: { np: 'करचुक्ता लिने', en: 'Tax Clearance' },
+  pdcr: { np: 'विवरण सच्याउने', en: 'PDCR' },
+  file_transfer: { np: 'अफिस ट्रान्सफर', en: 'File Transfer' },
+  personal_pan: { np: 'व्यक्तिगत प्यान बनाउने', en: 'Personal PAN' },
+  business_pan: { np: 'व्यवसायिक प्यान बनाउने', en: 'Business PAN' },
+  business_close: { np: 'व्यवसाय बन्द गर्ने', en: 'Business Close' },
+  business_deregistration: { np: 'व्यवसाय पूर्ण खारेज गर्ने', en: 'Business Deregistration & PAN Down gradation' },
+  scheme_apply: { np: 'स्किमको सूविधा लिने', en: 'Scheme Apply' },
+  vat_adjustment: { np: 'कर समायोजन पत्र बनाउने', en: 'VAT Adjustment Letter' },
+  due_clearance: { np: 'बक्यौता खारेजी', en: 'Due Clearance' },
+  bank_reactivation: { np: 'बैंक खाता फुकुवा', en: 'Reactivation of closed bank account' },
+  tax_audit: { np: 'कर परीक्षण', en: 'Tax Audit' },
   investigation: { np: 'अनुसन्धान', en: 'Investigation' },
   complaint: { np: 'उजुरी', en: 'Complaint' },
-  others: { np: 'अन्य', en: 'Others' },
+  others: { np: 'अन्य सेवा', en: 'Other' },
 };
 
 export default function Dashboard() {

@@ -23,6 +23,7 @@ export default function App() {
         <FeedbackProvider>
           <Routes>
             <Route path="/" element={<FeedbackForm />} />
+            <Route path="/feedback" element={<FeedbackForm />} />
             <Route path="/track" element={<TrackingPage />} />
             <Route path="/qr-print" element={<QRPrint />} />
             <Route path="/admin" element={<AdminLogin />} />
