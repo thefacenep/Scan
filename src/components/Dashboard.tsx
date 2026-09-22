@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useFeedback } from '../context/FeedbackContext';
 import { translations } from '../translations';
-import { Feedback, Category } from '../types';
+import { Feedback, Category, ServiceType } from '../types';
 
-const ratingEmojis = ['😡', '😞', '😐', '😊', '🤩'];
+const ratingEmojis = ['😞', '😕', '😐', '😊', '😃'];
 
 const categoryLabels: Record<Category, { np: string; en: string }> = {
   praise: { np: 'प्रशंसा', en: 'Praise' },
@@ -21,6 +21,25 @@ const categoryColors: Record<Category, string> = {
   grievance: 'bg-orange-100 text-orange-700',
 };
 
+const serviceLabels: Record<ServiceType, { np: string; en: string }> = {
+  help_desk: { np: 'हेल्प डेस्क', en: 'Help Desk' },
+  tax_clearance: { np: 'कर छुट', en: 'Tax Clearance' },
+  pdcr: { np: 'PDCR', en: 'PDCR' },
+  file_transfer: { np: 'फाइल स्थानान्तरण', en: 'File Transfer' },
+  personal_pan: { np: 'व्यक्तिगत PAN', en: 'Personal PAN' },
+  business_pan: { np: 'व्यावसायिक PAN', en: 'Business PAN' },
+  business_close: { np: 'व्यापार बन्द', en: 'Business Close' },
+  business_deregistration: { np: 'व्यापार दर्ता खारेज', en: 'Business Deregistration' },
+  scheme_apply: { np: 'स्किम आवेदन', en: 'Scheme Apply' },
+  vat_adjustment: { np: 'VAT समायोजन', en: 'VAT Adjustment' },
+  due_clearance: { np: 'बाँकी रकम भुक्तानी', en: 'Due Clearance' },
+  bank_reactivation: { np: 'बैंक पुनःसक्रिय', en: 'Bank Reactivation' },
+  tax_audit: { np: 'कर लेखापरीक्षा', en: 'Tax Audit' },
+  investigation: { np: 'अनुसन्धान', en: 'Investigation' },
+  complaint: { np: 'उजुरी', en: 'Complaint' },
+  others: { np: 'अन्य', en: 'Others' },
+};
+
 export default function Dashboard() {
   const { lang } = useLanguage();
   const { feedbacks, updateResponse } = useFeedback();
@@ -34,7 +53,7 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     localStorage.removeItem('iro-admin-auth');
-    navigate('/admin-login');
+    navigate('/admin');
   };
 
   const handleSaveResponse = () => {
@@ -48,7 +67,7 @@ export default function Dashboard() {
 
   const handleExportCSV = () => {
     const headers = [
-      'Code', 'Date', 'Category', 'Name', 'PAN', 'Contact',
+      'Code', 'Date', 'Service Type', 'Category', 'Name', 'PAN', 'Contact', 'Email',
       'Visit Date', 'Overall Service', 'Staff Behavior', 'Waiting Time',
       'Description', 'Response', 'Submitted At'
     ];
@@ -56,10 +75,12 @@ export default function Dashboard() {
     const rows = feedbacks.map(f => [
       f.code,
       f.dateOfVisit,
+      serviceLabels[f.serviceType]?.[lang] || f.serviceType,
       categoryLabels[f.category][lang],
       f.isAnonymous ? 'Anonymous' : f.name,
       f.pan,
       f.contact,
+      f.email,
       f.dateOfVisit,
       f.overallService,
       f.staffBehavior,
@@ -74,7 +95,7 @@ export default function Dashboard() {
       ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
     ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -90,15 +111,15 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-100">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-red-700 rounded-full flex items-center justify-center">
-              <span className="text-white text-xs font-bold">ने</span>
+            <div className="w-8 h-8 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center">
+              <span className="text-white text-[10px] font-bold">नेरा</span>
             </div>
             <div>
               <h1 className="text-sm font-bold text-gray-800">{t.dashboard}</h1>
-              <p className="text-xs text-gray-500">{t.officeTitle}</p>
+              <p className="text-[10px] text-gray-500">{t.officeTitle}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -118,8 +139,30 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Filter Tabs */}
+      {/* Stats */}
       <div className="max-w-4xl mx-auto px-4 pt-4">
+        <div className="grid grid-cols-4 gap-2 mb-4">
+          <div className="bg-white rounded-xl p-3 text-center border border-gray-100 shadow-sm">
+            <p className="text-xl font-bold text-gray-800">{feedbacks.length}</p>
+            <p className="text-[10px] text-gray-500">Total</p>
+          </div>
+          <div className="bg-green-50 rounded-xl p-3 text-center border border-green-100">
+            <p className="text-xl font-bold text-green-700">{feedbacks.filter(f => f.category === 'praise').length}</p>
+            <p className="text-[10px] text-green-600">{t.praise}</p>
+          </div>
+          <div className="bg-red-50 rounded-xl p-3 text-center border border-red-100">
+            <p className="text-xl font-bold text-red-700">{feedbacks.filter(f => f.category === 'complaint').length}</p>
+            <p className="text-[10px] text-red-600">{t.complaint}</p>
+          </div>
+          <div className="bg-purple-50 rounded-xl p-3 text-center border border-purple-100">
+            <p className="text-xl font-bold text-purple-700">{feedbacks.filter(f => f.response).length}</p>
+            <p className="text-[10px] text-purple-600">Responded</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="max-w-4xl mx-auto px-4">
         <div className="flex gap-2 overflow-x-auto pb-2">
           <button
             onClick={() => setFilterCategory('all')}
@@ -163,11 +206,14 @@ export default function Dashboard() {
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${categoryColors[feedback.category]}`}>
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${categoryColors[feedback.category]}`}>
                         {categoryLabels[feedback.category][lang]}
                       </span>
-                      <span className="text-xs text-gray-400 font-mono">{feedback.code}</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-gray-100 text-gray-600">
+                        {serviceLabels[feedback.serviceType]?.[lang] || feedback.serviceType}
+                      </span>
+                      <span className="text-[10px] text-gray-400 font-mono">{feedback.code}</span>
                     </div>
                     <p className="text-sm font-medium text-gray-800">
                       {feedback.isAnonymous ? t.anonymousLabel : feedback.name || t.anonymousLabel}
@@ -215,7 +261,7 @@ export default function Dashboard() {
       {selectedFeedback && !showRespond && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto shadow-2xl">
-            <div className="sticky top-0 bg-white px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+            <div className="sticky top-0 bg-white px-5 py-4 border-b border-gray-100 flex items-center justify-between rounded-t-2xl">
               <h3 className="font-bold text-gray-800">{t.viewDetails}</h3>
               <button
                 onClick={() => setSelectedFeedback(null)}
@@ -233,10 +279,13 @@ export default function Dashboard() {
                 </span>
               </div>
 
-              {/* Category */}
-              <div>
+              {/* Category & Service */}
+              <div className="flex gap-2 flex-wrap">
                 <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${categoryColors[selectedFeedback.category]}`}>
                   {categoryLabels[selectedFeedback.category][lang]}
+                </span>
+                <span className="inline-block px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                  {serviceLabels[selectedFeedback.serviceType]?.[lang] || selectedFeedback.serviceType}
                 </span>
               </div>
 
@@ -256,6 +305,12 @@ export default function Dashboard() {
                   <div className="flex justify-between">
                     <span className="text-gray-500">{t.contact}:</span>
                     <span className="font-medium">{selectedFeedback.contact}</span>
+                  </div>
+                )}
+                {selectedFeedback.email && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">{t.email}:</span>
+                    <span className="font-medium text-xs">{selectedFeedback.email}</span>
                   </div>
                 )}
                 {selectedFeedback.dateOfVisit && (
@@ -365,7 +420,7 @@ export default function Dashboard() {
                 disabled={!responseText.trim()}
                 className="w-full h-12 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {t.saveResponse}
+                {t.sendResponse}
               </button>
             </div>
           </div>
