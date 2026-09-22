@@ -6,7 +6,7 @@ import { translations } from '../translations';
 export default function QRPrint() {
   const { lang } = useLanguage();
   const t = translations[lang];
-  const siteUrl = window.location.origin;
+  const feedbackUrl = window.location.origin + '/feedback';
 
   return (
     <div className="min-h-screen bg-white print:min-h-0 print:bg-white">
@@ -52,7 +52,7 @@ export default function QRPrint() {
         {/* QR Code */}
         <div className="bg-white p-6 rounded-2xl shadow-2xl border-4 border-red-100 mb-8 print:shadow-none print:border-2 print:border-gray-300 print:p-4 print:rounded-xl">
           <QRCodeSVG
-            value={siteUrl}
+            value={feedbackUrl}
             size={280}
             level="H"
             includeMargin={true}
@@ -71,7 +71,7 @@ export default function QRPrint() {
             {t.qrInstructionsEn}
           </p>
           <p className="text-xs text-gray-400 mt-3 font-mono bg-gray-50 px-4 py-2 rounded-lg inline-block print:bg-transparent">
-            {siteUrl}
+            {feedbackUrl}
           </p>
         </div>
 
