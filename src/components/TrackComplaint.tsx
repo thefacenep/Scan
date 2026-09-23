@@ -15,24 +15,31 @@ export default function TrackComplaint() {
   const [code, setCode] = useState('');
   const [result, setResult] = useState<Complaint | null>(null);
   const [searched, setSearched] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const trackCode = searchParams.get('track');
     if (trackCode) {
       setCode(trackCode);
-      const found = getComplaintById(trackCode);
-      if (found) {
-        setResult(found);
-      }
-      setSearched(true);
+      handleSearch(trackCode);
     }
   }, [searchParams]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const found = getComplaintById(code);
-    setResult(found || null);
+  const handleSearch = async (searchCode?: string) => {
+    const codeToSearch = searchCode || code;
+    if (!codeToSearch.trim()) return;
+
+    setIsLoading(true);
     setSearched(true);
+    
+    const found = await getComplaintById(codeToSearch);
+    setResult(found);
+    setIsLoading(false);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSearch();
   };
 
   return (
@@ -41,11 +48,17 @@ export default function TrackComplaint() {
       <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Emblem_of_Nepal.svg/1024px-Emblem_of_Nepal.svg.png" 
-              alt="Emblem of Nepal" 
-              className="w-10 h-10 rounded-full object-cover shadow-md border border-gray-200"
-            />
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-md border border-gray-200 overflow-hidden">
+              <img 
+                src="/emblem.svg" 
+                alt="नेपालको सरकार - Emblem of Nepal Government" 
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.parentElement!.innerHTML = '<span class="text-blue-800 text-xs font-bold">नेरा</span>';
+                }}
+              />
+            </div>
             <div>
               <h1 className="text-sm font-bold text-gray-800">{t.officeTitle}</h1>
               <p className="text-[10px] text-gray-500">{t.trackingResult}</p>
@@ -64,7 +77,7 @@ export default function TrackComplaint() {
         {/* Search Box */}
         <div className="bg-white rounded-2xl shadow-lg p-5 mb-4 border border-gray-100">
           <h2 className="text-lg font-bold text-gray-800 mb-4 text-center">{t.searchByCode}</h2>
-          <form onSubmit={handleSearch} className="flex gap-2">
+          <form onSubmit={handleSubmit} className="flex gap-2">
             <input
               type="text"
               value={code}
@@ -74,9 +87,17 @@ export default function TrackComplaint() {
             />
             <button
               type="submit"
-              className="h-12 px-5 bg-red-700 text-white font-bold rounded-xl hover:bg-red-800 transition-colors"
+              disabled={isLoading}
+              className="h-12 px-5 bg-red-700 text-white font-bold rounded-xl hover:bg-red-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {t.track}
+              {isLoading ? (
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                </svg>
+              ) : (
+                t.track
+              )}
             </button>
           </form>
         </div>
@@ -84,7 +105,15 @@ export default function TrackComplaint() {
         {/* Result */}
         {searched && (
           <div className="bg-white rounded-2xl shadow-lg p-5 border border-gray-100">
-            {result ? (
+            {isLoading ? (
+              <div className="text-center py-8">
+                <svg className="animate-spin h-10 w-10 text-blue-600 mx-auto mb-3" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                </svg>
+                <p className="text-gray-500">{lang === 'np' ? 'खोजी हुँदैछ...' : 'Searching...'}</p>
+              </div>
+            ) : result ? (
               <div className="space-y-4">
                 {/* Header with Status */}
                 <div className="text-center">
@@ -100,7 +129,9 @@ export default function TrackComplaint() {
                       ? 'bg-green-100 text-green-700' 
                       : 'bg-yellow-100 text-yellow-700'
                   }`}>
-                    {result.status === 'Responded' ? '✅ Responded' : '⏳ Pending'}
+                    {result.status === 'Responded' 
+                      ? (lang === 'np' ? '✅ जवाफ दिइएको' : '✅ Responded') 
+                      : (lang === 'np' ? '⏳ बाँकी' : '⏳ Pending')}
                   </span>
                 </div>
 
@@ -122,16 +153,16 @@ export default function TrackComplaint() {
                 {/* Ratings */}
                 <div className="bg-gray-50 rounded-xl p-4 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Service Rating:</span>
+                    <span className="text-gray-500">{lang === 'np' ? 'सेवा मूल्याङ्कन' : 'Service Rating'}:</span>
                     <span className="text-lg">{ratingEmojis[result.serviceRating - 1] || '-'}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Staff Rating:</span>
+                    <span className="text-gray-500">{lang === 'np' ? 'कर्मचारी मूल्याङ्कन' : 'Staff Rating'}:</span>
                     <span className="text-lg">{ratingEmojis[result.staffRating - 1] || '-'}</span>
                   </div>
                   {result.waitingTime && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Waiting Time:</span>
+                      <span className="text-gray-500">{lang === 'np' ? 'प्रतीक्षा समय' : 'Waiting Time'}:</span>
                       <span className="text-xs font-medium text-gray-700">{result.waitingTime}</span>
                     </div>
                   )}
@@ -140,7 +171,9 @@ export default function TrackComplaint() {
                 {/* Details */}
                 {result.details && (
                   <div>
-                    <label className="text-xs font-medium text-gray-500 block mb-1">Details</label>
+                    <label className="text-xs font-medium text-gray-500 block mb-1">
+                      {lang === 'np' ? 'विवरण' : 'Details'}
+                    </label>
                     <p className="text-sm text-gray-700 bg-gray-50 rounded-xl p-3 whitespace-pre-wrap">
                       {result.details}
                     </p>
@@ -149,18 +182,24 @@ export default function TrackComplaint() {
 
                 {/* Response */}
                 <div>
-                  <label className="text-xs font-medium text-gray-500 block mb-1">Office Response</label>
+                  <label className="text-xs font-medium text-gray-500 block mb-1">
+                    {lang === 'np' ? 'कार्यालयको जवाफ' : 'Office Response'}
+                  </label>
                   {result.response ? (
                     <div className="bg-green-50 border border-green-200 rounded-xl p-4">
                       <p className="text-sm text-green-700 whitespace-pre-wrap">{result.response}</p>
                       {result.responseDate && (
-                        <p className="text-xs text-green-600 mt-2">Responded on: {result.responseDate}</p>
+                        <p className="text-xs text-green-600 mt-2">
+                          {lang === 'np' ? 'जवाफ मिति' : 'Responded on'}: {result.responseDate}
+                        </p>
                       )}
                     </div>
                   ) : (
                     <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
                       <p className="text-sm text-yellow-700">
-                        ⏳ Your complaint is being reviewed. We will respond soon.
+                        ⏳ {lang === 'np' 
+                          ? 'तपाईंको उजुरी समीक्षा अधीनमा छ। हामी चाँडै जवाफ दिनेछौं।' 
+                          : 'Your complaint is being reviewed. We will respond soon.'}
                       </p>
                     </div>
                   )}

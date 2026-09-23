@@ -2,7 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations';
-import { Complaint, getAllComplaints, updateComplaintResponse, getComplaintStats, exportToCSV } from '../utils/storage';
+import { 
+  Complaint, 
+  subscribeToComplaints, 
+  updateComplaintResponse, 
+  getComplaintStats, 
+  exportToCSV 
+} from '../utils/storage';
 import ComplaintModal from './ComplaintModal';
 
 export default function AdminDashboard() {
@@ -14,77 +20,44 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({ total: 0, praise: 0, complaint: 0, responded: 0, pending: 0 });
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
+  // Subscribe to real-time updates from Firestore
   useEffect(() => {
-    loadComplaints();
+    setIsLoading(true);
     
-    // Reload data when window gains focus
-    const handleFocus = () => {
-      loadComplaints();
-      setLastRefresh(new Date());
-    };
-    
-    // Reload data when tab becomes visible
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        loadComplaints();
+    const unsubscribe = subscribeToComplaints(
+      (data) => {
+        setComplaints(data);
+        setStats(getComplaintStats(data));
+        setIsLoading(false);
         setLastRefresh(new Date());
+      },
+      (error) => {
+        console.error('[Dashboard] Firestore error:', error);
+        setIsLoading(false);
       }
-    };
-    
-    // Listen for custom event when a complaint is saved
-    const handleComplaintSaved = () => {
-      console.log('[Dashboard] New complaint saved, reloading...');
-      loadComplaints();
-      setLastRefresh(new Date());
-    };
-    
-    // Listen for storage changes from other tabs
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'iro_complaints') {
-        console.log('[Dashboard] Storage changed, reloading...');
-        loadComplaints();
-        setLastRefresh(new Date());
-      }
-    };
-    
-    window.addEventListener('focus', handleFocus);
-    window.addEventListener('complaint-saved', handleComplaintSaved);
-    window.addEventListener('complaint-updated', handleComplaintSaved);
-    window.addEventListener('storage', handleStorageChange);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+    );
+
+    // Cleanup subscription on unmount
     return () => {
-      window.removeEventListener('focus', handleFocus);
-      window.removeEventListener('complaint-saved', handleComplaintSaved);
-      window.removeEventListener('complaint-updated', handleComplaintSaved);
-      window.removeEventListener('storage', handleStorageChange);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      unsubscribe();
     };
   }, []);
-
-  const loadComplaints = () => {
-    const data = getAllComplaints();
-    setComplaints(data);
-    setStats(getComplaintStats());
-  };
-
-  const handleRefresh = () => {
-    loadComplaints();
-    setLastRefresh(new Date());
-  };
 
   const handleLogout = () => {
     localStorage.removeItem('iro-admin-auth');
     navigate('/admin');
   };
 
-  const handleRespond = (id: string, response: string) => {
-    const success = updateComplaintResponse(id, response);
-    if (success) {
-      loadComplaints();
-    }
+  const handleRespond = async (id: string, response: string): Promise<void> => {
+    await updateComplaintResponse(id, response);
+    // Real-time listener will automatically update the UI
+  };
+
+  const handleExport = () => {
+    exportToCSV(complaints);
   };
 
   const filteredComplaints = filterCategory === 'all'
@@ -97,11 +70,17 @@ export default function AdminDashboard() {
       <header className="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Emblem_of_Nepal.svg/1024px-Emblem_of_Nepal.svg.png" 
-              alt="Emblem of Nepal" 
-              className="w-10 h-10 rounded-full object-cover shadow-md border border-gray-200"
-            />
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-md border border-gray-200 overflow-hidden">
+              <img 
+                src="/emblem.svg" 
+                alt="नेपालको सरकार - Emblem of Nepal Government" 
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.parentElement!.innerHTML = '<span class="text-blue-800 text-xs font-bold">नेरा</span>';
+                }}
+              />
+            </div>
             <div>
               <h1 className="text-sm font-bold text-gray-800">{t.dashboard}</h1>
               <p className="text-[10px] text-gray-500">{t.officeTitle}</p>
@@ -109,14 +88,7 @@ export default function AdminDashboard() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={handleRefresh}
-              className="px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
-              title={`Last refresh: ${lastRefresh.toLocaleTimeString()}`}
-            >
-              🔄 Refresh
-            </button>
-            <button
-              onClick={exportToCSV}
+              onClick={handleExport}
               className="px-3 py-1.5 text-xs font-medium bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
             >
               📥 {t.export}
@@ -135,13 +107,27 @@ export default function AdminDashboard() {
         {/* Data Status Indicator */}
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-sm">📊</span>
-            <span className="text-xs text-blue-700 font-medium">
-              {complaints.length} complaint{complaints.length !== 1 ? 's' : ''} loaded from localStorage
-            </span>
+            {isLoading ? (
+              <>
+                <svg className="animate-spin h-4 w-4 text-blue-600" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                </svg>
+                <span className="text-xs text-blue-700 font-medium">
+                  {lang === 'np' ? 'लोड हुँदैछ...' : 'Loading...'}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-sm">📊</span>
+                <span className="text-xs text-blue-700 font-medium">
+                  {complaints.length} {lang === 'np' ? 'उजुरी' : 'complaint'}{complaints.length !== 1 ? (lang === 'np' ? 'हरू' : 's') : ''} {lang === 'np' ? 'लोड भयो' : 'loaded'} (Real-time)
+                </span>
+              </>
+            )}
           </div>
           <span className="text-[10px] text-blue-500">
-            Last refresh: {lastRefresh.toLocaleTimeString()}
+            {lastRefresh.toLocaleTimeString()}
           </span>
         </div>
 
@@ -152,7 +138,7 @@ export default function AdminDashboard() {
               <span className="text-2xl">📋</span>
               <span className="text-2xl font-bold text-gray-800">{stats.total}</span>
             </div>
-            <p className="text-xs text-gray-500 font-medium">Total Complaints</p>
+            <p className="text-xs text-gray-500 font-medium">{lang === 'np' ? 'जम्मा' : 'Total'}</p>
           </div>
           <div className="bg-green-50 rounded-xl p-4 border border-green-100">
             <div className="flex items-center justify-between mb-2">
@@ -173,7 +159,7 @@ export default function AdminDashboard() {
               <span className="text-2xl">✅</span>
               <span className="text-2xl font-bold text-purple-700">{stats.responded}</span>
             </div>
-            <p className="text-xs text-purple-600 font-medium">Responded</p>
+            <p className="text-xs text-purple-600 font-medium">{lang === 'np' ? 'जवाफ दिइएको' : 'Responded'}</p>
           </div>
         </div>
 
@@ -190,7 +176,7 @@ export default function AdminDashboard() {
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
               >
-                {cat === 'all' ? `All (${stats.total})` : 
+                {cat === 'all' ? `${lang === 'np' ? 'सबै' : 'All'} (${stats.total})` : 
                  cat === 'Praise' ? `${t.praise} (${stats.praise})` :
                  cat === 'Complaint' ? `${t.complaint} (${stats.complaint})` :
                  `${cat} (${complaints.filter(c => c.category === cat).length})`}
@@ -200,7 +186,15 @@ export default function AdminDashboard() {
         </div>
 
         {/* Complaint List */}
-        {filteredComplaints.length === 0 ? (
+        {isLoading ? (
+          <div className="bg-white rounded-xl p-12 text-center border border-gray-100">
+            <svg className="animate-spin h-10 w-10 text-blue-600 mx-auto mb-3" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+            </svg>
+            <p className="text-gray-500">{lang === 'np' ? 'उजुरीहरू लोड हुँदैछन्...' : 'Loading complaints...'}</p>
+          </div>
+        ) : filteredComplaints.length === 0 ? (
           <div className="bg-white rounded-xl p-12 text-center border border-gray-100">
             <span className="text-5xl block mb-3">📭</span>
             <p className="text-gray-500">{t.noFeedbacks}</p>
@@ -251,7 +245,7 @@ export default function AdminDashboard() {
                     {/* Details/Comment Preview - PROMINENT */}
                     {complaint.details && (
                       <div className="mt-2 bg-gray-50 rounded-lg p-2.5 border-l-4 border-blue-400">
-                        <p className="text-[10px] font-semibold text-blue-700 mb-0.5">💬 Details/Comment:</p>
+                        <p className="text-[10px] font-semibold text-blue-700 mb-0.5">💬 {lang === 'np' ? 'विवरण/टिप्पणी' : 'Details/Comment'}:</p>
                         <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed">
                           {complaint.details}
                         </p>

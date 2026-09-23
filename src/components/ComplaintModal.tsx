@@ -6,7 +6,7 @@ import { translations } from '../translations';
 interface ComplaintModalProps {
   complaint: Complaint;
   onClose: () => void;
-  onRespond: (id: string, response: string) => void;
+  onRespond: (id: string, response: string) => Promise<void>;
 }
 
 const ratingEmojis = ['😞', '😕', '😐', '😊', '😃'];
@@ -18,10 +18,14 @@ export default function ComplaintModal({ complaint, onClose, onRespond }: Compla
   const [showResponseForm, setShowResponseForm] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
 
-  const handleSendResponse = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSendResponse = async () => {
     if (responseText.trim()) {
-      onRespond(complaint.id, responseText);
+      setIsSubmitting(true);
+      await onRespond(complaint.id, responseText);
       setSuccessMessage(lang === 'np' ? 'जवाफ सफलतापूर्वक पठाइयो!' : 'Response sent successfully!');
+      setIsSubmitting(false);
       setTimeout(() => {
         onClose();
       }, 2000);
@@ -171,13 +175,24 @@ export default function ComplaintModal({ complaint, onClose, onRespond }: Compla
                   rows={5}
                   className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-200 focus:border-purple-400 outline-none text-sm resize-none"
                   style={{ minHeight: '120px' }}
+                  disabled={isSubmitting}
                 />
                 <button
                   onClick={handleSendResponse}
-                  disabled={!responseText.trim()}
+                  disabled={!responseText.trim() || isSubmitting}
                   className="w-full h-12 bg-purple-600 text-white font-bold rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {t.sendResponse}
+                  {isSubmitting ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                      </svg>
+                      {lang === 'np' ? 'पठाउँदै...' : 'Sending...'}
+                    </span>
+                  ) : (
+                    t.sendResponse
+                  )}
                 </button>
               </div>
             )}

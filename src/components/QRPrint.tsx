@@ -36,11 +36,17 @@ export default function QRPrint() {
       {/* Print Content */}
       <div className="max-w-2xl mx-auto px-6 py-10 print:py-0 print:px-4 print:max-w-none flex flex-col items-center justify-center min-h-screen print:min-h-0">
         {/* Office Emblem */}
-        <img 
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Emblem_of_Nepal.svg/1024px-Emblem_of_Nepal.svg.png" 
-          alt="Emblem of Nepal" 
-          className="w-24 h-24 rounded-full object-cover shadow-xl mb-6 print:w-20 print:h-20 print:mb-4 border-2 border-gray-200"
-        />
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-xl mb-6 print:w-20 print:h-20 print:mb-4 border-2 border-gray-200 overflow-hidden">
+          <img 
+            src="/emblem.svg" 
+            alt="नेपालको सरकार - Emblem of Nepal Government" 
+            className="w-full h-full object-contain"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.parentElement!.innerHTML = '<span class="text-blue-800 text-2xl font-bold">नेरा</span>';
+            }}
+          />
+        </div>
 
         {/* Main Heading */}
         <h1 className="text-2xl sm:text-3xl font-extrabold text-center text-gray-800 mb-2 print:text-2xl">
