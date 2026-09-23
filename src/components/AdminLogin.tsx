@@ -28,20 +28,17 @@ export default function AdminLogin() {
         <div className="text-center mb-6">
           {/* Text Hierarchy - Centered */}
           <div className="mb-4">
-            <p className="text-[10px] text-red-700 leading-tight">
-              नेपाल सरकार / Government of Nepal
+            <p className="text-xs text-[#DC143C] leading-tight mb-1">
+              नेपाल सरकार
             </p>
-            <p className="text-[11px] text-red-700 leading-tight">
-              अर्थ मन्त्रालय / Ministry of Finance
+            <p className="text-xs text-[#DC143C] leading-tight mb-1">
+              अर्थ मन्त्रालय
             </p>
-            <p className="text-xs text-red-700 leading-tight font-medium">
-              आन्तरिक राजस्व विभाग / Inland Revenue Department
+            <p className="text-sm sm:text-base text-[#DC143C] leading-tight font-semibold mb-2">
+              आन्तरिक राजस्व विभाग
             </p>
-            <p className="text-sm text-red-700 leading-tight font-extrabold">
+            <p className="text-xl sm:text-2xl text-[#DC143C] leading-tight font-black tracking-tight">
               आन्तरिक राजस्व कार्यालय, कोटेश्वर
-            </p>
-            <p className="text-xs text-red-700 leading-tight font-semibold italic">
-              Inland Revenue Office, Koteshwor
             </p>
           </div>
           <h2 className="text-lg font-bold text-gray-800">{t.staffLogin}</h2>

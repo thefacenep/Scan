@@ -21,47 +21,37 @@ export default function Header({
   compact = false,
 }: HeaderProps) {
   return (
-    <header className="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b-2 border-red-700">
-      <div className="max-w-4xl mx-auto px-4 py-3">
-        <div className="flex items-center justify-between gap-3">
-          {/* Text Hierarchy - Main Content */}
-          <div className="flex-1 text-center sm:text-left">
+    <header className="bg-white shadow-sm sticky top-0 z-40 border-b-2 border-[#DC143C]">
+      <div className="max-w-4xl mx-auto px-4 py-4">
+        <div className="flex items-start justify-between gap-3">
+          {/* Centered Text Hierarchy */}
+          <div className="flex-1 text-center">
             {/* Line 1: Government of Nepal (smallest) */}
-            <p className="text-[10px] sm:text-xs text-red-700 leading-tight">
-              नेपाल सरकार / Government of Nepal
+            <p className="text-xs text-[#DC143C] leading-tight mb-1">
+              नेपाल सरकार
             </p>
 
             {/* Line 2: Ministry of Finance */}
-            <p className="text-[11px] sm:text-xs text-red-700 leading-tight">
-              अर्थ मन्त्रालय / Ministry of Finance
+            <p className="text-xs text-[#DC143C] leading-tight mb-1">
+              अर्थ मन्त्रालय
             </p>
 
             {/* Line 3: Inland Revenue Department */}
-            <p className={`${compact ? 'text-xs' : 'text-xs sm:text-sm'} text-red-700 leading-tight font-medium`}>
-              आन्तरिक राजस्व विभाग / Inland Revenue Department
+            <p className={`${compact ? 'text-sm' : 'text-sm sm:text-base'} text-[#DC143C] leading-tight font-semibold mb-2`}>
+              आन्तरिक राजस्व विभाग
             </p>
 
-            {/* Line 4: Office Name (largest & boldest) */}
-            <p className={`${compact ? 'text-sm' : 'text-sm sm:text-base'} text-red-700 leading-tight font-extrabold`}>
+            {/* Line 4: Office Name (LARGEST & BOLDEST - Most Prominent) */}
+            <p className={`${compact ? 'text-lg sm:text-xl' : 'text-xl sm:text-2xl'} text-[#DC143C] leading-tight font-black tracking-tight`}>
               आन्तरिक राजस्व कार्यालय, कोटेश्वर
             </p>
-            <p className="text-[10px] sm:text-xs text-red-700 leading-tight font-semibold italic">
-              Inland Revenue Office, Koteshwor
-            </p>
-
-            {/* Optional subtitle */}
-            {subtitle && (
-              <p className="text-[10px] sm:text-xs text-red-700/80 mt-1 italic">
-                {subtitle}
-              </p>
-            )}
           </div>
 
           {/* Language Toggle (optional) */}
           {showLangToggle && onLangToggle && (
             <button
               onClick={onLangToggle}
-              className="flex-shrink-0 px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-red-50 to-red-100 text-red-700 rounded-full border border-red-300 hover:from-red-100 hover:to-red-200 transition-all shadow-sm"
+              className="flex-shrink-0 px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-red-50 to-red-100 text-[#DC143C] rounded-full border-2 border-[#DC143C] hover:from-red-100 hover:to-red-200 transition-all shadow-sm"
               aria-label="Toggle language"
             >
               {lang === 'np' ? 'EN' : 'NP'}
