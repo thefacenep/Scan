@@ -1,3 +1,16 @@
+import { 
+  collection, 
+  addDoc, 
+  getDocs, 
+  doc, 
+  updateDoc, 
+  query, 
+  orderBy, 
+  onSnapshot,
+  Timestamp
+} from 'firebase/firestore';
+import { db } from '../firebase';
+
 export interface Complaint {
   id: string;
   date: string;
@@ -16,7 +29,7 @@ export interface Complaint {
   responseDate: string | null;
 }
 
-const STORAGE_KEY = 'iro_complaints';
+const COLLECTION_NAME = 'complaints';
 
 export function generateComplaintId(): string {
   const now = new Date();
@@ -27,84 +40,115 @@ export function generateComplaintId(): string {
   return `IRO-KTW-${year}${month}${day}-${random}`;
 }
 
-export function getAllComplaints(): Complaint[] {
+// Save complaint to Firestore
+export async function saveComplaint(complaint: Complaint): Promise<boolean> {
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) {
-      console.log('[Storage] No complaints found in localStorage');
-      return [];
-    }
-    const parsed = JSON.parse(data);
-    console.log(`[Storage] Loaded ${parsed.length} complaints from localStorage`);
-    return Array.isArray(parsed) ? parsed : [];
+    const docRef = await addDoc(collection(db, COLLECTION_NAME), {
+      ...complaint,
+      createdAt: Timestamp.now()
+    });
+    
+    console.log(`[Firestore] ✅ Complaint saved with ID: ${docRef.id}`);
+    return true;
   } catch (error) {
-    console.error('[Storage] Error reading complaints from localStorage:', error);
+    console.error('[Firestore] ❌ Error saving complaint:', error);
+    return false;
+  }
+}
+
+// Get all complaints (one-time fetch)
+export async function getAllComplaints(): Promise<Complaint[]> {
+  try {
+    const q = query(collection(db, COLLECTION_NAME), orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    
+    const complaints: Complaint[] = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Complaint[];
+    
+    console.log(`[Firestore] Loaded ${complaints.length} complaints`);
+    return complaints;
+  } catch (error) {
+    console.error('[Firestore] Error fetching complaints:', error);
     return [];
   }
 }
 
-export function saveComplaint(complaint: Complaint): boolean {
+// Subscribe to real-time updates
+export function subscribeToComplaints(
+  callback: (complaints: Complaint[]) => void,
+  errorCallback?: (error: Error) => void
+): () => void {
   try {
-    const complaints = getAllComplaints();
-    complaints.unshift(complaint); // Add to beginning
+    const q = query(collection(db, COLLECTION_NAME), orderBy('createdAt', 'desc'));
     
-    const jsonString = JSON.stringify(complaints);
-    localStorage.setItem(STORAGE_KEY, jsonString);
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const complaints: Complaint[] = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Complaint[];
+      
+      console.log(`[Firestore] Real-time update: ${complaints.length} complaints`);
+      callback(complaints);
+    }, (error) => {
+      console.error('[Firestore] Snapshot error:', error);
+      if (errorCallback) {
+        errorCallback(error);
+      }
+    });
     
-    // Verify the save was successful
-    const verify = localStorage.getItem(STORAGE_KEY);
-    if (verify) {
-      console.log(`[Storage] ✅ Complaint saved successfully: ${complaint.id}`);
-      console.log(`[Storage] Total complaints now: ${complaints.length}`);
-      
-      // Dispatch a custom event so other components can react
-      window.dispatchEvent(new CustomEvent('complaint-saved', { detail: complaint }));
-      
-      return true;
-    } else {
-      console.error('[Storage] ❌ Save verification failed');
-      return false;
-    }
+    return unsubscribe;
   } catch (error) {
-    console.error('[Storage] ❌ Error saving complaint to localStorage:', error);
-    return false;
+    console.error('[Firestore] Error setting up listener:', error);
+    if (errorCallback) {
+      errorCallback(error as Error);
+    }
+    return () => {};
   }
 }
 
-export function updateComplaintResponse(id: string, response: string): boolean {
+// Update complaint response
+export async function updateComplaintResponse(
+  complaintId: string, 
+  response: string
+): Promise<boolean> {
   try {
-    const complaints = getAllComplaints();
-    const index = complaints.findIndex(c => c.id === id);
+    const complaintRef = doc(db, COLLECTION_NAME, complaintId);
     
-    if (index === -1) {
-      console.error(`[Storage] Complaint not found: ${id}`);
-      return false;
-    }
+    await updateDoc(complaintRef, {
+      response: response,
+      status: 'Responded',
+      responseDate: new Date().toISOString().split('T')[0]
+    });
     
-    complaints[index].response = response;
-    complaints[index].status = 'Responded';
-    complaints[index].responseDate = new Date().toISOString().split('T')[0];
-    
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(complaints));
-    console.log(`[Storage] ✅ Response saved for: ${id}`);
-    
-    // Dispatch event
-    window.dispatchEvent(new CustomEvent('complaint-updated', { detail: complaints[index] }));
-    
+    console.log(`[Firestore] ✅ Response saved for complaint: ${complaintId}`);
     return true;
   } catch (error) {
-    console.error('[Storage] ❌ Error updating complaint response:', error);
+    console.error('[Firestore] ❌ Error updating response:', error);
     return false;
   }
 }
 
-export function getComplaintById(id: string): Complaint | undefined {
-  const complaints = getAllComplaints();
-  return complaints.find(c => c.id === id);
+// Get complaint by ID
+export async function getComplaintById(id: string): Promise<Complaint | null> {
+  try {
+    const q = query(collection(db, COLLECTION_NAME));
+    const querySnapshot = await getDocs(q);
+    
+    const complaint = querySnapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() } as Complaint))
+      .find(c => c.id === id);
+    
+    return complaint || null;
+  } catch (error) {
+    console.error('[Firestore] Error fetching complaint:', error);
+    return null;
+  }
 }
 
-export function getComplaintStats() {
-  const complaints = getAllComplaints();
+// Get statistics
+export function getComplaintStats(complaints: Complaint[]) {
   return {
     total: complaints.length,
     praise: complaints.filter(c => c.category === 'Praise').length,
@@ -114,9 +158,8 @@ export function getComplaintStats() {
   };
 }
 
-export function exportToCSV(): void {
-  const complaints = getAllComplaints();
-  
+// Export to CSV (same as before)
+export function exportToCSV(complaints: Complaint[]): void {
   if (complaints.length === 0) {
     alert('No complaints to export');
     return;

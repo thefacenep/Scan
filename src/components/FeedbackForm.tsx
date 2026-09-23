@@ -77,8 +77,13 @@ export default function FeedbackForm() {
     { key: 'grievance', label: t.grievance, activeColor: 'bg-orange-500 text-white shadow-lg shadow-orange-200' },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitError('');
 
     // Map service type to display name
     const serviceNames: Record<ServiceType, string> = {
@@ -139,23 +144,32 @@ export default function FeedbackForm() {
       responseDate: null,
     };
 
-    saveComplaint(complaint);
-    setTrackingCode(complaintId);
-    setShowSuccess(true);
+    const success = await saveComplaint(complaint);
+    
+    if (success) {
+      setTrackingCode(complaintId);
+      setShowSuccess(true);
 
-    // Reset form
-    setIsAnonymous(false);
-    setServiceType('help_desk');
-    setName('');
-    setPan('');
-    setContact('');
-    setEmail('');
-    setDateOfVisit('');
-    setCategory('complaint');
-    setOverallService(0);
-    setStaffBehavior(0);
-    setWaitingTime('');
-    setDescription('');
+      // Reset form
+      setIsAnonymous(false);
+      setServiceType('help_desk');
+      setName('');
+      setPan('');
+      setContact('');
+      setEmail('');
+      setDateOfVisit(new Date().toISOString().split('T')[0]);
+      setCategory('complaint');
+      setOverallService(0);
+      setStaffBehavior(0);
+      setWaitingTime('');
+      setDescription('');
+    } else {
+      setSubmitError(lang === 'np' 
+        ? 'प्रतिकृया पेश गर्न असफल भयो। कृपया पुन: प्रयास गर्नुहोस्।' 
+        : 'Failed to submit feedback. Please try again.');
+    }
+    
+    setIsSubmitting(false);
   };
 
   return (
@@ -408,13 +422,31 @@ export default function FeedbackForm() {
               />
             </div>
 
+            {/* Error Message */}
+            {submitError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl flex items-center gap-2">
+                <span>❌</span> {submitError}
+              </div>
+            )}
+
             {/* Submit Button */}
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full h-14 bg-[#DC143C] text-white text-lg font-bold rounded-xl shadow-lg shadow-red-200 hover:bg-[#b8102f] active:scale-[0.98] transition-all"
+                disabled={isSubmitting}
+                className="w-full h-14 bg-[#DC143C] text-white text-lg font-bold rounded-xl shadow-lg shadow-red-200 hover:bg-[#b8102f] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t.submit} / {t.submitEn}
+                {isSubmitting ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                    </svg>
+                    {lang === 'np' ? 'पेश गर्दै...' : 'Submitting...'}
+                  </span>
+                ) : (
+                  <>{t.submit} / {t.submitEn}</>
+                )}
               </button>
             </div>
           </form>
