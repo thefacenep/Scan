@@ -26,11 +26,17 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-gradient-to-b from-sky-50 to-blue-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm border border-gray-100">
         <div className="text-center mb-6">
-          <img 
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Emblem_of_Nepal.svg/1024px-Emblem_of_Nepal.svg.png" 
-            alt="Emblem of Nepal" 
-            className="w-16 h-16 rounded-full object-cover shadow-md border-2 border-gray-200 mx-auto mb-3"
-          />
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-md border-2 border-gray-200 mx-auto mb-3 overflow-hidden">
+            <img 
+              src="/emblem.svg" 
+              alt="नेपालको सरकार - Emblem of Nepal Government" 
+              className="w-full h-full object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.parentElement!.innerHTML = '<span class="text-blue-800 text-lg font-bold">नेरा</span>';
+              }}
+            />
+          </div>
           <h2 className="text-lg font-bold text-gray-800">{t.staffLogin}</h2>
           <p className="text-xs text-gray-500 mt-1">{t.officeTitle}</p>
           <p className="text-[10px] text-gray-400">{t.ministry}</p>

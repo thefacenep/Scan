@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4682B4;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="mountainGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E8E8E8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Outer Circle Border -->
+  <circle cx="100" cy="100" r="98" fill="none" stroke="#1a237e" stroke-width="3"/>
+  <circle cx="100" cy="100" r="92" fill="url(#skyGrad)" stroke="#1a237e" stroke-width="1.5"/>
+  
+  <!-- Mount Everest (Snow-capped mountain) -->
+  <polygon points="100,35 75,75 125,75" fill="url(#mountainGrad)" stroke="#666" stroke-width="0.5"/>
+  <polygon points="100,35 90,50 110,50" fill="#FFFFFF"/>
+  <polygon points="85,55 75,75 95,75" fill="#E0E0E0"/>
+  <polygon points="115,55 125,75 105,75" fill="#E0E0E0"/>
+  
+  <!-- Green Hills -->
+  <ellipse cx="70" cy="85" rx="35" ry="15" fill="#2E7D32"/>
+  <ellipse cx="130" cy="85" rx="35" ry="15" fill="#2E7D32"/>
+  <ellipse cx="100" cy="88" rx="30" ry="12" fill="#388E3C"/>
+  
+  <!-- Rhododendron flowers (National flower) -->
+  <circle cx="60" cy="78" r="3" fill="#E91E63"/>
+  <circle cx="65" cy="80" r="2.5" fill="#F06292"/>
+  <circle cx="140" cy="78" r="3" fill="#E91E63"/>
+  <circle cx="135" cy="80" r="2.5" fill="#F06292"/>
+  <circle cx="95" cy="82" r="2" fill="#E91E63"/>
+  <circle cx="105" cy="82" r="2" fill="#F06292"/>
+  
+  <!-- Clasped Hands (symbolizing equality) -->
+  <path d="M 85,105 Q 80,110 85,115 L 95,115 Q 100,110 95,105 Z" fill="#FFD54F" stroke="#F57F17" stroke-width="0.8"/>
+  <path d="M 115,105 Q 120,110 115,115 L 105,115 Q 100,110 105,105 Z" fill="#FFD54F" stroke="#F57F17" stroke-width="0.8"/>
+  <circle cx="100" cy="110" r="4" fill="#FFC107" stroke="#F57F17" stroke-width="0.5"/>
+  
+  <!-- Nepal Flags (triangular pennants) -->
+  <g transform="translate(55, 95)">
+    <polygon points="0,0 0,15 8,7.5" fill="#DC143C" stroke="#8B0000" stroke-width="0.5"/>
+    <polygon points="0,0 0,8 5,4" fill="#003893" stroke="#001F5B" stroke-width="0.3"/>
+  </g>
+  <g transform="translate(137, 95)">
+    <polygon points="8,0 8,15 0,7.5" fill="#DC143C" stroke="#8B0000" stroke-width="0.5"/>
+    <polygon points="8,0 8,8 3,4" fill="#003893" stroke="#001F5B" stroke-width="0.3"/>
+  </g>
+  
+  <!-- White Cow (National animal - Gau) -->
+  <ellipse cx="100" cy="135" rx="12" ry="8" fill="#FFFFFF" stroke="#999" stroke-width="0.5"/>
+  <ellipse cx="93" cy="132" rx="4" ry="5" fill="#FFFFFF" stroke="#999" stroke-width="0.5"/>
+  <circle cx="91" cy="130" r="1" fill="#333"/>
+  <line x1="88" y1="128" x2="86" y2="126" stroke="#999" stroke-width="0.8"/>
+  <line x1="94" y1="128" x2="96" y2="126" stroke="#999" stroke-width="0.8"/>
+  <line x1="95" y1="140" x2="95" y2="145" stroke="#999" stroke-width="1"/>
+  <line x1="105" y1="140" x2="105" y2="145" stroke="#999" stroke-width="1"/>
+  
+  <!-- Bottom Banner with Motto -->
+  <path d="M 40,155 Q 100,165 160,155 L 160,170 Q 100,180 40,170 Z" fill="#FFD54F" stroke="#F57F17" stroke-width="1"/>
+  <text x="100" y="166" font-family="serif" font-size="7" fill="#1a237e" text-anchor="middle" font-weight="bold">जननी जन्मभूमिश्च</text>
+  <text x="100" y="174" font-family="serif" font-size="6" fill="#1a237e" text-anchor="middle">स्वर्गादपि गरीयसी</text>
+  
+  <!-- Top decorative element -->
+  <circle cx="100" cy="25" r="5" fill="#FFD700" stroke="#F57F17" stroke-width="0.5"/>
+  <polygon points="100,18 102,23 107,23 103,26 105,31 100,28 95,31 97,26 93,23 98,23" fill="#FFD700" stroke="#F57F17" stroke-width="0.3"/>
+</svg>

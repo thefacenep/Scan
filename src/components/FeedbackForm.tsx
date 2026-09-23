@@ -61,7 +61,7 @@ export default function FeedbackForm() {
   const [pan, setPan] = useState('');
   const [contact, setContact] = useState('');
   const [email, setEmail] = useState('');
-  const [dateOfVisit, setDateOfVisit] = useState('');
+  const [dateOfVisit, setDateOfVisit] = useState(new Date().toISOString().split('T')[0]);
   const [category, setCategory] = useState<Category>('complaint');
   const [overallService, setOverallService] = useState(0);
   const [staffBehavior, setStaffBehavior] = useState(0);
@@ -165,11 +165,17 @@ export default function FeedbackForm() {
         <div className="max-w-lg mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <img 
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Emblem_of_Nepal.svg/1024px-Emblem_of_Nepal.svg.png" 
-                alt="Emblem of Nepal" 
-                className="w-12 h-12 rounded-full object-cover shadow-md border border-gray-200"
-              />
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-md border border-gray-200 overflow-hidden">
+                <img 
+                  src="/emblem.svg" 
+                  alt="नेपालको सरकार - Emblem of Nepal Government" 
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement!.innerHTML = '<span class="text-blue-800 text-xs font-bold">नेरा</span>';
+                  }}
+                />
+              </div>
               <div>
                 <h1 className="text-sm font-bold text-gray-800 leading-tight">{t.officeTitle}</h1>
                 <p className="text-[10px] text-gray-500">{t.ministry}</p>
