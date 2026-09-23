@@ -26,20 +26,25 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-gradient-to-b from-sky-50 to-blue-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm border border-gray-100">
         <div className="text-center mb-6">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-md border-2 border-gray-200 mx-auto mb-3 overflow-hidden">
-            <img 
-              src="/emblem.svg" 
-              alt="नेपालको सरकार - Emblem of Nepal Government" 
-              className="w-full h-full object-contain"
-              onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = '<span class="text-blue-800 text-lg font-bold">नेरा</span>';
-              }}
-            />
+          {/* Text Hierarchy - Centered */}
+          <div className="mb-4">
+            <p className="text-[10px] text-red-700 leading-tight">
+              नेपाल सरकार / Government of Nepal
+            </p>
+            <p className="text-[11px] text-red-700 leading-tight">
+              अर्थ मन्त्रालय / Ministry of Finance
+            </p>
+            <p className="text-xs text-red-700 leading-tight font-medium">
+              आन्तरिक राजस्व विभाग / Inland Revenue Department
+            </p>
+            <p className="text-sm text-red-700 leading-tight font-extrabold">
+              आन्तरिक राजस्व कार्यालय, कोटेश्वर
+            </p>
+            <p className="text-xs text-red-700 leading-tight font-semibold italic">
+              Inland Revenue Office, Koteshwor
+            </p>
           </div>
           <h2 className="text-lg font-bold text-gray-800">{t.staffLogin}</h2>
-          <p className="text-xs text-gray-500 mt-1">{t.officeTitle}</p>
-          <p className="text-[10px] text-gray-400">{t.ministry}</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">

@@ -67,24 +67,24 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-md border border-gray-200 overflow-hidden">
-              <img 
-                src="/emblem.svg" 
-                alt="नेपालको सरकार - Emblem of Nepal Government" 
-                className="w-full h-full object-contain"
-                onError={(e) => {
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.parentElement!.innerHTML = '<span class="text-blue-800 text-xs font-bold">नेरा</span>';
-                }}
-              />
-            </div>
-            <div>
-              <h1 className="text-sm font-bold text-gray-800">{t.dashboard}</h1>
-              <p className="text-[10px] text-gray-500">{t.officeTitle}</p>
-            </div>
+      <header className="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b-2 border-red-700">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+          <div className="flex-1">
+            <p className="text-[10px] text-red-700 leading-tight">
+              नेपाल सरकार / Government of Nepal
+            </p>
+            <p className="text-[11px] text-red-700 leading-tight">
+              अर्थ मन्त्रालय / Ministry of Finance
+            </p>
+            <p className="text-xs text-red-700 leading-tight font-medium">
+              आन्तरिक राजस्व विभाग / Inland Revenue Department
+            </p>
+            <p className="text-sm text-red-700 leading-tight font-extrabold">
+              आन्तरिक राजस्व कार्यालय, कोटेश्वर
+            </p>
+            <p className="text-[10px] text-red-700 leading-tight font-semibold italic">
+              Inland Revenue Office, Koteshwor
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <button
