@@ -1,16 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations';
 import { Category, WaitingTime, ServiceType } from '../types';
 import { saveComplaint, generateComplaintId, Complaint } from '../utils/storage';
 import Header from './Header';
-
-interface PreviousComplaint {
-  code: string;
-  service: string;
-  status: string;
-  date: string;
-}
 
 const ratingEmojis = [
   { value: 1, emoji: '😞' },
@@ -87,20 +80,6 @@ export default function FeedbackForm() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
-  const [showPreviousComplaints, setShowPreviousComplaints] = useState(false);
-  const [previousComplaints, setPreviousComplaints] = useState<PreviousComplaint[]>([]);
-
-  // Load previous complaints from localStorage on component mount
-  useEffect(() => {
-    const stored = localStorage.getItem('my_complaints');
-    if (stored) {
-      try {
-        setPreviousComplaints(JSON.parse(stored));
-      } catch (e) {
-        console.error('Error loading previous complaints:', e);
-      }
-    }
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,19 +151,6 @@ export default function FeedbackForm() {
       if (success) {
         setTrackingCode(complaintId);
         setShowSuccess(true);
-
-        // Save to localStorage for "Previous Complaints" feature
-        const newComplaint: PreviousComplaint = {
-          code: complaintId,
-          service: serviceNames[serviceType],
-          status: 'Pending',
-          date: new Date().toISOString().split('T')[0]
-        };
-        
-        const existingComplaints = JSON.parse(localStorage.getItem('my_complaints') || '[]');
-        const updatedComplaints = [newComplaint, ...existingComplaints];
-        localStorage.setItem('my_complaints', JSON.stringify(updatedComplaints));
-        setPreviousComplaints(updatedComplaints);
 
         // Reset form
         setIsAnonymous(false);
@@ -474,71 +440,6 @@ export default function FeedbackForm() {
           </form>
         </div>
 
-        {/* Previous Complaints Dropdown */}
-        {previousComplaints.length > 0 && (
-          <div className="mt-6 bg-white rounded-2xl shadow-lg p-5 border border-gray-100">
-            <button
-              onClick={() => setShowPreviousComplaints(!showPreviousComplaints)}
-              className="w-full flex items-center justify-between text-left"
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-xl">📋</span>
-                <div>
-                  <h3 className="text-sm font-bold text-gray-800">
-                    {lang === 'np' ? 'अघिल्ला उजुरीहरू' : 'Previous Complaints'}
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    {previousComplaints.length} {lang === 'np' ? 'उजुरी' : 'complaint'}{previousComplaints.length !== 1 ? (lang === 'np' ? 'हरू' : 's') : ''}
-                  </p>
-                </div>
-              </div>
-              <svg
-                className={`w-5 h-5 text-gray-500 transition-transform ${showPreviousComplaints ? 'rotate-180' : ''}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-
-            {showPreviousComplaints && (
-              <div className="mt-4 space-y-2">
-                {previousComplaints.map((complaint, index) => (
-                  <a
-                    key={index}
-                    href={`/track?track=${complaint.code}`}
-                    className="block p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-200"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-mono font-bold text-red-700 truncate">
-                          {complaint.code}
-                        </p>
-                        <p className="text-xs text-gray-600 mt-1 truncate">
-                          {complaint.service}
-                        </p>
-                        <p className="text-[10px] text-gray-500 mt-0.5">
-                          {complaint.date}
-                        </p>
-                      </div>
-                      <span className={`px-2 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap ${
-                        complaint.status === 'Responded' 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-yellow-100 text-yellow-700'
-                      }`}>
-                        {complaint.status === 'Responded' 
-                          ? (lang === 'np' ? '✅ जवाफ' : '✅ Responded')
-                          : (lang === 'np' ? '⏳ बाँकी' : '⏳ Pending')}
-                      </span>
-                    </div>
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Footer */}
         <footer className="mt-6 pb-4 space-y-4">
           {/* Contact Info */}
@@ -575,12 +476,6 @@ export default function FeedbackForm() {
 
           {/* Links */}
           <div className="flex justify-center gap-4">
-            <a
-              href="/track"
-              className="text-xs text-red-700 hover:text-red-800 font-medium underline"
-            >
-              🔍 {t.trackBtn}
-            </a>
             <a
               href="/qr-print"
               className="text-xs text-gray-500 hover:text-gray-700 underline"
@@ -622,27 +517,21 @@ export default function FeedbackForm() {
                 <span className="text-3xl">✅</span>
               </div>
               <h3 className="text-lg font-bold text-gray-800 mb-2">{t.successTitle}</h3>
-              <p className="text-sm text-gray-600 mb-3">{t.successMsg}</p>
+              <p className="text-sm text-gray-600 mb-3">
+                {lang === 'np' ? 'तपाईंको प्रतिक्रियाको लागि धन्यवाद!' : 'Thank you for your feedback!'}
+              </p>
+              <p className="text-xs text-gray-500 mb-2">
+                {lang === 'np' ? 'उजुरी कोड (कार्यालय सन्दर्भको लागि):' : 'Complaint Code (for office reference):'}
+              </p>
               <div className="bg-gray-100 rounded-xl p-4 mb-5">
                 <span className="text-2xl font-mono font-bold text-red-700">{trackingCode}</span>
               </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowSuccess(false)}
-                  className="flex-1 h-12 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-colors"
-                >
-                  {t.close}
-                </button>
-                <button
-                  onClick={() => {
-                    setShowSuccess(false);
-                    window.location.href = `/track?track=${trackingCode}`;
-                  }}
-                  className="flex-1 h-12 bg-red-700 text-white font-medium rounded-xl hover:bg-red-800 transition-colors"
-                >
-                  {t.trackBtn}
-                </button>
-              </div>
+              <button
+                onClick={() => setShowSuccess(false)}
+                className="w-full h-12 bg-red-700 text-white font-medium rounded-xl hover:bg-red-800 transition-colors"
+              >
+                {t.close}
+              </button>
             </div>
           </div>
         </div>

@@ -4,7 +4,6 @@ import { LanguageProvider } from './context/LanguageContext';
 import FeedbackForm from './components/FeedbackForm';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
-import TrackComplaint from './components/TrackComplaint';
 import QRPrint from './components/QRPrint';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -22,7 +21,6 @@ export default function App() {
         <Routes>
           <Route path="/" element={<FeedbackForm />} />
           <Route path="/feedback" element={<FeedbackForm />} />
-          <Route path="/track" element={<TrackComplaint />} />
           <Route path="/qr-print" element={<QRPrint />} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route
