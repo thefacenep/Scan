@@ -1,14 +1,15 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
-// Firebase configuration - Replace with your actual Firebase project credentials
+// Firebase configuration
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "your-app.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-app.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "your-app-id"
+  apiKey: "AIzaSyBN7uk7PQaS0E0Q8jsNiaibLk0OevW9VmI",
+  authDomain: "scan-deb79.firebaseapp.com",
+  projectId: "scan-deb79",
+  storageBucket: "scan-deb79.firebasestorage.app",
+  messagingSenderId: "1080514700753",
+  appId: "1:1080514700753:web:6316cbd9a2f7a3a4edecf0",
+  measurementId: "G-LB5NTTB2EC"
 };
 
 // Initialize Firebase
