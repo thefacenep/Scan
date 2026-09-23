@@ -13,7 +13,8 @@ import {
 import { db } from '../firebase';
 
 export interface Complaint {
-  id: string;
+  id: string; // Human-readable code (e.g., IRO-KTW-20250115-4523)
+  firestoreId?: string; // Firestore document ID (auto-generated)
   date: string;
   service: string;
   category: string;
@@ -44,12 +45,18 @@ export function generateComplaintId(): string {
 // Save complaint to Firestore
 export async function saveComplaint(complaint: Complaint): Promise<boolean> {
   try {
+    // First, create the document
     const docRef = await addDoc(collection(db, COLLECTION_NAME), {
       ...complaint,
       createdAt: Timestamp.now()
     });
     
-    console.log(`[Firestore] ✅ Complaint saved with ID: ${docRef.id}`);
+    // Then update it with the Firestore document ID
+    await updateDoc(docRef, {
+      firestoreId: docRef.id
+    });
+    
+    console.log(`[Firestore] ✅ Complaint saved with Firestore ID: ${docRef.id}, Complaint Code: ${complaint.id}`);
     return true;
   } catch (error) {
     console.error('[Firestore] ❌ Error saving complaint:', error);
@@ -64,8 +71,8 @@ export async function getAllComplaints(): Promise<Complaint[]> {
     const querySnapshot = await getDocs(q);
     
     const complaints: Complaint[] = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
+      ...doc.data(),
+      firestoreId: doc.id // Store Firestore document ID separately
     })) as Complaint[];
     
     console.log(`[Firestore] Loaded ${complaints.length} complaints`);
@@ -86,8 +93,8 @@ export function subscribeToComplaints(
     
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const complaints: Complaint[] = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
+        ...doc.data(),
+        firestoreId: doc.id // Store Firestore document ID separately
       })) as Complaint[];
       
       console.log(`[Firestore] Real-time update: ${complaints.length} complaints`);
@@ -111,11 +118,11 @@ export function subscribeToComplaints(
 
 // Update complaint response
 export async function updateComplaintResponse(
-  complaintId: string, 
+  firestoreId: string, 
   response: string
 ): Promise<boolean> {
   try {
-    const complaintRef = doc(db, COLLECTION_NAME, complaintId);
+    const complaintRef = doc(db, COLLECTION_NAME, firestoreId);
     
     await updateDoc(complaintRef, {
       response: response,
@@ -123,7 +130,7 @@ export async function updateComplaintResponse(
       responseDate: serverTimestamp()
     });
     
-    console.log(`[Firestore] ✅ Response saved for complaint: ${complaintId}`);
+    console.log(`[Firestore] ✅ Response saved for complaint with Firestore ID: ${firestoreId}`);
     return true;
   } catch (error) {
     console.error('[Firestore] ❌ Error updating response:', error);
@@ -131,15 +138,15 @@ export async function updateComplaintResponse(
   }
 }
 
-// Get complaint by ID
+// Get complaint by ID (human-readable code)
 export async function getComplaintById(id: string): Promise<Complaint | null> {
   try {
-    // Query by the id field since we're storing it as a field in the document
+    // Query by the id field (human-readable code) since we're storing it as a field in the document
     const q = query(collection(db, COLLECTION_NAME));
     const querySnapshot = await getDocs(q);
     
     const complaint = querySnapshot.docs
-      .map(doc => ({ id: doc.id, ...doc.data() } as Complaint))
+      .map(doc => ({ ...doc.data(), firestoreId: doc.id } as Complaint))
       .find(c => c.id === id);
     
     return complaint || null;

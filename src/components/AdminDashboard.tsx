@@ -51,8 +51,14 @@ export default function AdminDashboard() {
     navigate('/admin');
   };
 
-  const handleRespond = async (id: string, response: string): Promise<void> => {
-    const success = await updateComplaintResponse(id, response);
+  const handleRespond = async (firestoreId: string, response: string): Promise<void> => {
+    if (!firestoreId) {
+      console.error('[Dashboard] ❌ No Firestore ID provided');
+      alert(lang === 'np' ? 'जवाफ पठाउन असफल भयो। कृपया पुन: प्रयास गर्नुहोस्।' : 'Failed to send response. Please try again.');
+      return;
+    }
+    
+    const success = await updateComplaintResponse(firestoreId, response);
     
     if (success) {
       // Show success message

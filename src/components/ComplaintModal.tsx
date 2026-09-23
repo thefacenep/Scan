@@ -6,7 +6,7 @@ import { translations } from '../translations';
 interface ComplaintModalProps {
   complaint: Complaint;
   onClose: () => void;
-  onRespond: (id: string, response: string) => Promise<void>;
+  onRespond: (firestoreId: string, response: string) => Promise<void>;
 }
 
 const ratingEmojis = ['😞', '😕', '😐', '😊', '😃'];
@@ -22,8 +22,14 @@ export default function ComplaintModal({ complaint, onClose, onRespond }: Compla
 
   const handleSendResponse = async () => {
     if (responseText.trim()) {
+      if (!complaint.firestoreId) {
+        console.error('[ComplaintModal] ❌ No Firestore ID available for complaint:', complaint.id);
+        alert(lang === 'np' ? 'जवाफ पठाउन असफल भयो। कृपया पुन: प्रयास गर्नुहोस्।' : 'Failed to send response. Please try again.');
+        return;
+      }
+      
       setIsSubmitting(true);
-      await onRespond(complaint.id, responseText);
+      await onRespond(complaint.firestoreId, responseText);
       setSuccessMessage(lang === 'np' ? 'जवाफ सफलतापूर्वक पठाइयो!' : 'Response sent successfully!');
       setIsSubmitting(false);
       setTimeout(() => {
