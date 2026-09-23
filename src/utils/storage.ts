@@ -133,6 +133,7 @@ export async function updateComplaintResponse(
 // Get complaint by ID
 export async function getComplaintById(id: string): Promise<Complaint | null> {
   try {
+    // Query by the id field since we're storing it as a field in the document
     const q = query(collection(db, COLLECTION_NAME));
     const querySnapshot = await getDocs(q);
     
