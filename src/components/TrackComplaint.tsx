@@ -41,9 +41,11 @@ export default function TrackComplaint() {
       <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center shadow-md">
-              <span className="text-white text-sm font-bold">नेरा</span>
-            </div>
+            <img 
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Emblem_of_Nepal.svg/1024px-Emblem_of_Nepal.svg.png" 
+              alt="Emblem of Nepal" 
+              className="w-10 h-10 rounded-full object-cover shadow-md border border-gray-200"
+            />
             <div>
               <h1 className="text-sm font-bold text-gray-800">{t.officeTitle}</h1>
               <p className="text-[10px] text-gray-500">{t.trackingResult}</p>

@@ -14,15 +14,65 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({ total: 0, praise: 0, complaint: 0, responded: 0, pending: 0 });
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
   useEffect(() => {
     loadComplaints();
+    
+    // Reload data when window gains focus
+    const handleFocus = () => {
+      loadComplaints();
+      setLastRefresh(new Date());
+    };
+    
+    // Reload data when tab becomes visible
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadComplaints();
+        setLastRefresh(new Date());
+      }
+    };
+    
+    // Listen for custom event when a complaint is saved
+    const handleComplaintSaved = () => {
+      console.log('[Dashboard] New complaint saved, reloading...');
+      loadComplaints();
+      setLastRefresh(new Date());
+    };
+    
+    // Listen for storage changes from other tabs
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'iro_complaints') {
+        console.log('[Dashboard] Storage changed, reloading...');
+        loadComplaints();
+        setLastRefresh(new Date());
+      }
+    };
+    
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('complaint-saved', handleComplaintSaved);
+    window.addEventListener('complaint-updated', handleComplaintSaved);
+    window.addEventListener('storage', handleStorageChange);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('complaint-saved', handleComplaintSaved);
+      window.removeEventListener('complaint-updated', handleComplaintSaved);
+      window.removeEventListener('storage', handleStorageChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   const loadComplaints = () => {
     const data = getAllComplaints();
     setComplaints(data);
     setStats(getComplaintStats());
+  };
+
+  const handleRefresh = () => {
+    loadComplaints();
+    setLastRefresh(new Date());
   };
 
   const handleLogout = () => {
@@ -47,15 +97,24 @@ export default function AdminDashboard() {
       <header className="bg-white shadow-sm sticky top-0 z-40 border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center">
-              <span className="text-white text-xs font-bold">नेरा</span>
-            </div>
+            <img 
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Emblem_of_Nepal.svg/1024px-Emblem_of_Nepal.svg.png" 
+              alt="Emblem of Nepal" 
+              className="w-10 h-10 rounded-full object-cover shadow-md border border-gray-200"
+            />
             <div>
               <h1 className="text-sm font-bold text-gray-800">{t.dashboard}</h1>
               <p className="text-[10px] text-gray-500">{t.officeTitle}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleRefresh}
+              className="px-3 py-1.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+              title={`Last refresh: ${lastRefresh.toLocaleTimeString()}`}
+            >
+              🔄 Refresh
+            </button>
             <button
               onClick={exportToCSV}
               className="px-3 py-1.5 text-xs font-medium bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
@@ -73,6 +132,19 @@ export default function AdminDashboard() {
       </header>
 
       <div className="max-w-6xl mx-auto px-4 py-6">
+        {/* Data Status Indicator */}
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 mb-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm">📊</span>
+            <span className="text-xs text-blue-700 font-medium">
+              {complaints.length} complaint{complaints.length !== 1 ? 's' : ''} loaded from localStorage
+            </span>
+          </div>
+          <span className="text-[10px] text-blue-500">
+            Last refresh: {lastRefresh.toLocaleTimeString()}
+          </span>
+        </div>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
@@ -176,11 +248,14 @@ export default function AdminDashboard() {
                       <span>{complaint.date}</span>
                     </div>
 
-                    {/* Details Preview */}
+                    {/* Details/Comment Preview - PROMINENT */}
                     {complaint.details && (
-                      <p className="text-xs text-gray-600 mt-2 line-clamp-2">
-                        {complaint.details}
-                      </p>
+                      <div className="mt-2 bg-gray-50 rounded-lg p-2.5 border-l-4 border-blue-400">
+                        <p className="text-[10px] font-semibold text-blue-700 mb-0.5">💬 Details/Comment:</p>
+                        <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed">
+                          {complaint.details}
+                        </p>
+                      </div>
                     )}
                   </div>
 

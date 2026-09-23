@@ -165,9 +165,11 @@ export default function FeedbackForm() {
         <div className="max-w-lg mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center shadow-md">
-                <span className="text-white text-base font-bold">नेरा</span>
-              </div>
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Emblem_of_Nepal.svg/1024px-Emblem_of_Nepal.svg.png" 
+                alt="Emblem of Nepal" 
+                className="w-12 h-12 rounded-full object-cover shadow-md border border-gray-200"
+              />
               <div>
                 <h1 className="text-sm font-bold text-gray-800 leading-tight">{t.officeTitle}</h1>
                 <p className="text-[10px] text-gray-500">{t.ministry}</p>
