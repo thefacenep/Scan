@@ -3,6 +3,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { translations } from '../translations';
 import { Category, WaitingTime, ServiceType } from '../types';
 import { saveComplaint, generateComplaintId, Complaint } from '../utils/storage';
+import Header from './Header';
 
 const ratingEmojis = [
   { value: 1, emoji: '😞' },
@@ -175,36 +176,12 @@ export default function FeedbackForm() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50 via-blue-50 to-indigo-50 pb-28">
       {/* Header */}
-      <header className="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b border-gray-100">
-        <div className="max-w-lg mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-md border border-gray-200 overflow-hidden">
-                <img 
-                  src="/emblem.svg" 
-                  alt="नेपालको सरकार - Emblem of Nepal Government" 
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.parentElement!.innerHTML = '<span class="text-blue-800 text-xs font-bold">नेरा</span>';
-                  }}
-                />
-              </div>
-              <div>
-                <h1 className="text-sm font-bold text-gray-800 leading-tight">{t.officeTitle}</h1>
-                <p className="text-[10px] text-gray-500">{t.ministry}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setLang(lang === 'np' ? 'en' : 'np')}
-              className="px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-red-50 to-red-100 text-red-700 rounded-full border border-red-200 hover:from-red-100 hover:to-red-200 transition-all shadow-sm"
-            >
-              {lang === 'np' ? 'EN' : 'NP'}
-            </button>
-          </div>
-          <p className="text-[11px] text-gray-500 mt-1 text-center">{t.officeSubtitle}</p>
-        </div>
-      </header>
+      <Header 
+        showLangToggle={true}
+        lang={lang}
+        onLangToggle={() => setLang(lang === 'np' ? 'en' : 'np')}
+        subtitle={t.officeSubtitle}
+      />
 
       {/* Form */}
       <main className="max-w-lg mx-auto px-4 pt-5">

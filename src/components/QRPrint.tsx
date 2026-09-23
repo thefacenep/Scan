@@ -35,29 +35,27 @@ export default function QRPrint() {
 
       {/* Print Content */}
       <div className="max-w-2xl mx-auto px-6 py-10 print:py-0 print:px-4 print:max-w-none flex flex-col items-center justify-center min-h-screen print:min-h-0">
-        {/* Office Emblem */}
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center shadow-xl mb-6 print:w-20 print:h-20 print:mb-4 border-2 border-gray-200 overflow-hidden">
-          <img 
-            src="/emblem.svg" 
-            alt="नेपालको सरकार - Emblem of Nepal Government" 
-            className="w-full h-full object-contain"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              e.currentTarget.parentElement!.innerHTML = '<span class="text-blue-800 text-2xl font-bold">नेरा</span>';
-            }}
-          />
+        {/* Text Hierarchy - Centered for Print */}
+        <div className="text-center mb-6 print:mb-4">
+          <p className="text-xs sm:text-sm text-red-700 leading-tight">
+            नेपाल सरकार / Government of Nepal
+          </p>
+          <p className="text-sm sm:text-base text-red-700 leading-tight">
+            अर्थ मन्त्रालय / Ministry of Finance
+          </p>
+          <p className="text-base sm:text-lg text-red-700 leading-tight font-medium">
+            आन्तरिक राजस्व विभाग / Inland Revenue Department
+          </p>
+          <p className="text-xl sm:text-2xl text-red-700 leading-tight font-extrabold print:text-xl">
+            आन्तरिक राजस्व कार्यालय, कोटेश्वर
+          </p>
+          <p className="text-base sm:text-lg text-red-700 leading-tight font-semibold italic print:text-base">
+            Inland Revenue Office, Koteshwor
+          </p>
         </div>
 
-        {/* Main Heading */}
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-center text-gray-800 mb-2 print:text-2xl">
-          {t.officeTitle}
-        </h1>
-        <p className="text-base sm:text-lg text-center text-gray-600 mb-6 print:text-sm print:mb-4">
-          Inland Revenue Office, Koteshwor
-        </p>
-
         {/* Divider */}
-        <div className="w-32 h-1 bg-red-600 rounded-full mb-6 print:mb-4"></div>
+        <div className="w-32 h-1 bg-red-700 rounded-full mb-6 print:mb-4"></div>
 
         {/* Subheading */}
         <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-700 mb-2 print:text-lg">
