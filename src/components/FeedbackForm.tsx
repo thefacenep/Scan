@@ -1,14 +1,8 @@
 import React, { useState } from 'react';
 import { useLanguage } from '../context/LanguageContext';
-import { useFeedback } from '../context/FeedbackContext';
 import { translations } from '../translations';
-import { Feedback, Category, WaitingTime, ServiceType } from '../types';
-import { v4 as uuidv4 } from 'uuid';
-
-function generateCode(): string {
-  const num = Math.floor(1000 + Math.random() * 9000);
-  return `IRO-KTW-${num}`;
-}
+import { Category, WaitingTime, ServiceType } from '../types';
+import { saveComplaint, generateComplaintId, Complaint } from '../utils/storage';
 
 const ratingEmojis = [
   { value: 1, emoji: '😞' },
@@ -59,7 +53,6 @@ const serviceTypes: ServiceType[] = [
 
 export default function FeedbackForm() {
   const { lang, setLang } = useLanguage();
-  const { addFeedback } = useFeedback();
   const t = translations[lang];
 
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -87,27 +80,67 @@ export default function FeedbackForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const feedback: Feedback = {
-      id: uuidv4(),
-      code: generateCode(),
-      serviceType,
-      isAnonymous,
-      name: isAnonymous ? '' : name,
+    // Map service type to display name
+    const serviceNames: Record<ServiceType, string> = {
+      help_desk: 'Help Desk',
+      tax_clearance: 'Tax Clearance',
+      pdcr: 'PDCR',
+      file_transfer: 'File Transfer',
+      personal_pan: 'Personal PAN',
+      business_pan: 'Business PAN',
+      business_close: 'Business Close',
+      business_deregistration: 'Business Deregistration & PAN Down gradation',
+      scheme_apply: 'Scheme Apply',
+      vat_adjustment: 'VAT Adjustment Letter',
+      due_clearance: 'Due Clearance',
+      bank_reactivation: 'Reactivation of closed bank account',
+      tax_audit: 'Tax Audit',
+      investigation: 'Investigation',
+      complaint: 'Complaint',
+      others: 'Other',
+    };
+
+    // Map category to display name
+    const categoryNames: Record<Category, string> = {
+      praise: 'Praise',
+      suggestion: 'Suggestion',
+      complaint: 'Complaint',
+      grievance: 'Grievance',
+    };
+
+    // Map waiting time to display text
+    const waitingTimeTexts: Record<WaitingTime, string> = {
+      within_10_min: '१० मिनेटभित्र',
+      '10min_30min': '१० मिनेट-आधा घण्टा',
+      '30min_1hr': 'आधा घण्टा-१ घण्टा',
+      more_than_1hr: '१ घण्टा भन्दा बढी',
+      '1_day': '१ दिन',
+      '2_days': '२ दिन',
+      more_than_3_days: '३ दिन भन्दा बढी',
+    };
+
+    const complaintId = generateComplaintId();
+
+    const complaint: Complaint = {
+      id: complaintId,
+      date: new Date().toISOString().split('T')[0],
+      service: serviceNames[serviceType],
+      category: categoryNames[category],
+      name: isAnonymous ? 'Anonymous' : (name || 'Anonymous'),
       pan: isAnonymous ? '' : pan,
       contact: isAnonymous ? '' : contact,
       email: isAnonymous ? '' : email,
-      dateOfVisit,
-      category,
-      overallService,
-      staffBehavior,
-      waitingTime,
-      description,
-      submittedAt: new Date().toISOString(),
-      response: '',
+      serviceRating: overallService,
+      staffRating: staffBehavior,
+      waitingTime: waitingTime ? waitingTimeTexts[waitingTime] : '',
+      details: description,
+      status: 'Pending',
+      response: null,
+      responseDate: null,
     };
 
-    addFeedback(feedback);
-    setTrackingCode(feedback.code);
+    saveComplaint(complaint);
+    setTrackingCode(complaintId);
     setShowSuccess(true);
 
     // Reset form
