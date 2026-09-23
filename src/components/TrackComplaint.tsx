@@ -45,31 +45,30 @@ export default function TrackComplaint() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-50 to-blue-100 pb-8">
       {/* Header */}
-      <header className="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-40 border-b-2 border-red-700">
-        <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between gap-3">
-          <div className="flex-1">
-            <p className="text-[10px] text-red-700 leading-tight">
-              नेपाल सरकार / Government of Nepal
-            </p>
-            <p className="text-[11px] text-red-700 leading-tight">
-              अर्थ मन्त्रालय / Ministry of Finance
-            </p>
-            <p className="text-xs text-red-700 leading-tight font-medium">
-              आन्तरिक राजस्व विभाग / Inland Revenue Department
-            </p>
-            <p className="text-sm text-red-700 leading-tight font-extrabold">
-              आन्तरिक राजस्व कार्यालय, कोटेश्वर
-            </p>
-            <p className="text-[10px] text-red-700 leading-tight font-semibold italic">
-              Inland Revenue Office, Koteshwor
-            </p>
+      <header className="bg-white shadow-sm sticky top-0 z-40 border-b-2 border-[#DC143C]">
+        <div className="max-w-lg mx-auto px-4 py-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex-1 text-center">
+              <p className="text-xs text-[#DC143C] leading-tight mb-1">
+                नेपाल सरकार
+              </p>
+              <p className="text-xs text-[#DC143C] leading-tight mb-1">
+                अर्थ मन्त्रालय
+              </p>
+              <p className="text-sm sm:text-base text-[#DC143C] leading-tight font-semibold mb-2">
+                आन्तरिक राजस्व विभाग
+              </p>
+              <p className="text-xl sm:text-2xl text-[#DC143C] leading-tight font-black tracking-tight">
+                आन्तरिक राजस्व कार्यालय, कोटेश्वर
+              </p>
+            </div>
+            <button
+              onClick={() => navigate('/')}
+              className="px-3 py-1.5 text-xs font-medium bg-gray-100 rounded-full border border-gray-200 hover:bg-gray-200"
+            >
+              ← {t.backToForm}
+            </button>
           </div>
-          <button
-            onClick={() => navigate('/')}
-            className="px-3 py-1.5 text-xs font-medium bg-gray-100 rounded-full border border-gray-200 hover:bg-gray-200"
-          >
-            ← {t.backToForm}
-          </button>
         </div>
       </header>
 

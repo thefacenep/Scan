@@ -37,20 +37,17 @@ export default function QRPrint() {
       <div className="max-w-2xl mx-auto px-6 py-10 print:py-0 print:px-4 print:max-w-none flex flex-col items-center justify-center min-h-screen print:min-h-0">
         {/* Text Hierarchy - Centered for Print */}
         <div className="text-center mb-6 print:mb-4">
-          <p className="text-xs sm:text-sm text-red-700 leading-tight">
-            नेपाल सरकार / Government of Nepal
+          <p className="text-xs sm:text-sm text-[#DC143C] leading-tight mb-1">
+            नेपाल सरकार
           </p>
-          <p className="text-sm sm:text-base text-red-700 leading-tight">
-            अर्थ मन्त्रालय / Ministry of Finance
+          <p className="text-xs sm:text-sm text-[#DC143C] leading-tight mb-1">
+            अर्थ मन्त्रालय
           </p>
-          <p className="text-base sm:text-lg text-red-700 leading-tight font-medium">
-            आन्तरिक राजस्व विभाग / Inland Revenue Department
+          <p className="text-sm sm:text-base text-[#DC143C] leading-tight font-semibold mb-2">
+            आन्तरिक राजस्व विभाग
           </p>
-          <p className="text-xl sm:text-2xl text-red-700 leading-tight font-extrabold print:text-xl">
+          <p className="text-xl sm:text-2xl text-[#DC143C] leading-tight font-black tracking-tight print:text-xl">
             आन्तरिक राजस्व कार्यालय, कोटेश्वर
-          </p>
-          <p className="text-base sm:text-lg text-red-700 leading-tight font-semibold italic print:text-base">
-            Inland Revenue Office, Koteshwor
           </p>
         </div>
 

@@ -7,7 +7,8 @@ import {
   query, 
   orderBy, 
   onSnapshot,
-  Timestamp
+  Timestamp,
+  serverTimestamp
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -119,7 +120,7 @@ export async function updateComplaintResponse(
     await updateDoc(complaintRef, {
       response: response,
       status: 'Responded',
-      responseDate: new Date().toISOString().split('T')[0]
+      responseDate: serverTimestamp()
     });
     
     console.log(`[Firestore] ✅ Response saved for complaint: ${complaintId}`);
