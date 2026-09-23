@@ -26,9 +26,11 @@ export default function AdminLogin() {
     <div className="min-h-screen bg-gradient-to-b from-sky-50 to-blue-100 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm border border-gray-100">
         <div className="text-center mb-6">
-          <div className="w-14 h-14 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center mx-auto mb-3 shadow-md">
-            <span className="text-white text-xl font-bold">नेरा</span>
-          </div>
+          <img 
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Emblem_of_Nepal.svg/1024px-Emblem_of_Nepal.svg.png" 
+            alt="Emblem of Nepal" 
+            className="w-16 h-16 rounded-full object-cover shadow-md border-2 border-gray-200 mx-auto mb-3"
+          />
           <h2 className="text-lg font-bold text-gray-800">{t.staffLogin}</h2>
           <p className="text-xs text-gray-500 mt-1">{t.officeTitle}</p>
           <p className="text-[10px] text-gray-400">{t.ministry}</p>

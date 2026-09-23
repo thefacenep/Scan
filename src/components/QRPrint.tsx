@@ -6,29 +6,41 @@ import { translations } from '../translations';
 export default function QRPrint() {
   const { lang } = useLanguage();
   const t = translations[lang];
+  // QR code points to the feedback form URL
+  // IMPORTANT: Ensure your deployment (Vercel/Netlify) has "Deployment Protection" DISABLED
+  // so the public can access without login. Check: Vercel Project Settings → Deployment Protection → Disabled
   const feedbackUrl = window.location.origin + '/feedback';
 
   return (
     <div className="min-h-screen bg-white print:min-h-0 print:bg-white">
       {/* Screen-only header */}
       <div className="print:hidden bg-gray-50 border-b border-gray-200 px-4 py-3">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <p className="text-sm text-gray-600">QR Code Print Preview</p>
-          <button
-            onClick={() => window.print()}
-            className="px-4 py-2 bg-red-700 text-white text-sm font-medium rounded-lg hover:bg-red-800 transition-colors"
-          >
-            🖨️ Print
-          </button>
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-gray-600">QR Code Print Preview</p>
+            <button
+              onClick={() => window.print()}
+              className="px-4 py-2 bg-red-700 text-white text-sm font-medium rounded-lg hover:bg-red-800 transition-colors"
+            >
+              🖨️ Print
+            </button>
+          </div>
+          {/* Vercel Deployment Note */}
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-xs text-yellow-800">
+            <p className="font-semibold mb-1">⚠️ Important: Vercel Deployment Protection</p>
+            <p>If scanning the QR code asks for login, go to your <strong>Vercel Dashboard → Project Settings → Deployment Protection</strong> and set it to <strong>"Disabled"</strong> or <strong>"Public"</strong>. The QR code below links to: <code className="bg-yellow-100 px-1 rounded">{feedbackUrl}</code></p>
+          </div>
         </div>
       </div>
 
       {/* Print Content */}
       <div className="max-w-2xl mx-auto px-6 py-10 print:py-0 print:px-4 print:max-w-none flex flex-col items-center justify-center min-h-screen print:min-h-0">
         {/* Office Emblem */}
-        <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center shadow-xl mb-6 print:w-16 print:h-16 print:mb-4">
-          <span className="text-white text-2xl font-bold print:text-xl">नेरा</span>
-        </div>
+        <img 
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Emblem_of_Nepal.svg/1024px-Emblem_of_Nepal.svg.png" 
+          alt="Emblem of Nepal" 
+          className="w-24 h-24 rounded-full object-cover shadow-xl mb-6 print:w-20 print:h-20 print:mb-4 border-2 border-gray-200"
+        />
 
         {/* Main Heading */}
         <h1 className="text-2xl sm:text-3xl font-extrabold text-center text-gray-800 mb-2 print:text-2xl">

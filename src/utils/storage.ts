@@ -30,20 +30,44 @@ export function generateComplaintId(): string {
 export function getAllComplaints(): Complaint[] {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
+    if (!data) {
+      console.log('[Storage] No complaints found in localStorage');
+      return [];
+    }
+    const parsed = JSON.parse(data);
+    console.log(`[Storage] Loaded ${parsed.length} complaints from localStorage`);
+    return Array.isArray(parsed) ? parsed : [];
   } catch (error) {
-    console.error('Error reading complaints from localStorage:', error);
+    console.error('[Storage] Error reading complaints from localStorage:', error);
     return [];
   }
 }
 
-export function saveComplaint(complaint: Complaint): void {
+export function saveComplaint(complaint: Complaint): boolean {
   try {
     const complaints = getAllComplaints();
     complaints.unshift(complaint); // Add to beginning
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(complaints));
+    
+    const jsonString = JSON.stringify(complaints);
+    localStorage.setItem(STORAGE_KEY, jsonString);
+    
+    // Verify the save was successful
+    const verify = localStorage.getItem(STORAGE_KEY);
+    if (verify) {
+      console.log(`[Storage] ✅ Complaint saved successfully: ${complaint.id}`);
+      console.log(`[Storage] Total complaints now: ${complaints.length}`);
+      
+      // Dispatch a custom event so other components can react
+      window.dispatchEvent(new CustomEvent('complaint-saved', { detail: complaint }));
+      
+      return true;
+    } else {
+      console.error('[Storage] ❌ Save verification failed');
+      return false;
+    }
   } catch (error) {
-    console.error('Error saving complaint to localStorage:', error);
+    console.error('[Storage] ❌ Error saving complaint to localStorage:', error);
+    return false;
   }
 }
 
@@ -52,16 +76,24 @@ export function updateComplaintResponse(id: string, response: string): boolean {
     const complaints = getAllComplaints();
     const index = complaints.findIndex(c => c.id === id);
     
-    if (index === -1) return false;
+    if (index === -1) {
+      console.error(`[Storage] Complaint not found: ${id}`);
+      return false;
+    }
     
     complaints[index].response = response;
     complaints[index].status = 'Responded';
     complaints[index].responseDate = new Date().toISOString().split('T')[0];
     
     localStorage.setItem(STORAGE_KEY, JSON.stringify(complaints));
+    console.log(`[Storage] ✅ Response saved for: ${id}`);
+    
+    // Dispatch event
+    window.dispatchEvent(new CustomEvent('complaint-updated', { detail: complaints[index] }));
+    
     return true;
   } catch (error) {
-    console.error('Error updating complaint response:', error);
+    console.error('[Storage] ❌ Error updating complaint response:', error);
     return false;
   }
 }
