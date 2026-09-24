@@ -69,7 +69,6 @@ export default function FeedbackForm() {
   const [waitingTime, setWaitingTime] = useState<WaitingTime | ''>('');
   const [description, setDescription] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
-  const [trackingCode, setTrackingCode] = useState('');
 
   const categories: { key: Category; label: string; activeColor: string }[] = [
     { key: 'praise', label: t.praise, activeColor: 'bg-green-500 text-white shadow-lg shadow-green-200' },
@@ -149,7 +148,6 @@ export default function FeedbackForm() {
       const success = await saveComplaint(complaint);
       
       if (success) {
-        setTrackingCode(complaintId);
         setShowSuccess(true);
 
         // Reset form
@@ -516,21 +514,19 @@ export default function FeedbackForm() {
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">✅</span>
               </div>
-              <h3 className="text-lg font-bold text-gray-800 mb-2">{t.successTitle}</h3>
-              <p className="text-sm text-gray-600 mb-3">
-                {lang === 'np' ? 'तपाईंको प्रतिक्रियाको लागि धन्यवाद!' : 'Thank you for your feedback!'}
+              <h3 className="text-xl font-bold text-gray-800 mb-3">
+                {lang === 'np' ? 'धन्यवाद!' : 'Thank You!'}
+              </h3>
+              <p className="text-sm text-gray-600 mb-5">
+                {lang === 'np' 
+                  ? 'तपाईंको प्रतिक्रिया सफलतापूर्वक दर्ता गरियो।' 
+                  : 'Your feedback has been successfully registered.'}
               </p>
-              <p className="text-xs text-gray-500 mb-2">
-                {lang === 'np' ? 'उजुरी कोड (कार्यालय सन्दर्भको लागि):' : 'Complaint Code (for office reference):'}
-              </p>
-              <div className="bg-gray-100 rounded-xl p-4 mb-5">
-                <span className="text-2xl font-mono font-bold text-red-700">{trackingCode}</span>
-              </div>
               <button
                 onClick={() => setShowSuccess(false)}
                 className="w-full h-12 bg-red-700 text-white font-medium rounded-xl hover:bg-red-800 transition-colors"
               >
-                {t.close}
+                {lang === 'np' ? 'बन्द गर्नुहोस्' : 'Close'}
               </button>
             </div>
           </div>
