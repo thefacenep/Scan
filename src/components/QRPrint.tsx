@@ -54,6 +54,13 @@ export default function QRPrint() {
         {/* Divider */}
         <div className="w-32 h-1 bg-red-700 rounded-full mb-6 print:mb-4"></div>
 
+        {/* Welcoming Question */}
+        <div className="text-center mb-6 print:mb-4">
+          <p className="text-lg sm:text-xl font-bold text-blue-700 leading-relaxed print:text-base">
+            तपाइँलाई यस कार्यालयको सेवा प्रवाह कस्तो लाग्यो ?
+          </p>
+        </div>
+
         {/* Subheading */}
         <h2 className="text-xl sm:text-2xl font-bold text-center text-gray-700 mb-2 print:text-lg">
           {t.scanTitle}
