@@ -322,7 +322,7 @@ export default function FeedbackForm() {
             </div>
 
             {/* Overall Service Rating */}
-            <div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-0.5">{t.overallService}</label>
               <p className="text-xs text-gray-400 mb-3">{t.overallServiceEn}</p>
               <div className="flex justify-between gap-1.5">
@@ -334,7 +334,7 @@ export default function FeedbackForm() {
                     className={`flex-1 flex flex-col items-center py-2 rounded-xl transition-all transform ${
                       overallService === r.value
                         ? 'bg-yellow-50 scale-110 shadow-lg ring-2 ring-yellow-300'
-                        : 'bg-gray-50 hover:bg-gray-100 hover:scale-105'
+                        : 'bg-white hover:bg-gray-100 hover:scale-105'
                     }`}
                   >
                     <span className="text-3xl drop-shadow-md" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>{r.emoji}</span>
@@ -347,7 +347,7 @@ export default function FeedbackForm() {
             </div>
 
             {/* Staff Behavior Rating */}
-            <div>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-0.5">{t.staffBehavior}</label>
               <p className="text-xs text-gray-400 mb-3">{t.staffBehaviorEn}</p>
               <div className="flex justify-between gap-1.5">
@@ -359,7 +359,7 @@ export default function FeedbackForm() {
                     className={`flex-1 flex flex-col items-center py-2 rounded-xl transition-all transform ${
                       staffBehavior === r.value
                         ? 'bg-yellow-50 scale-110 shadow-lg ring-2 ring-yellow-300'
-                        : 'bg-gray-50 hover:bg-gray-100 hover:scale-105'
+                        : 'bg-white hover:bg-gray-100 hover:scale-105'
                     }`}
                   >
                     <span className="text-3xl drop-shadow-md" style={{ textShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>{r.emoji}</span>
@@ -372,7 +372,7 @@ export default function FeedbackForm() {
             </div>
 
             {/* Waiting Time */}
-            <div>
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
               <label className="block text-sm font-semibold text-gray-700 mb-0.5">{t.waitingTimeQ}</label>
               <p className="text-xs text-gray-400 mb-3">{t.waitingTimeEn}</p>
               <div className="grid grid-cols-2 gap-2">
@@ -445,8 +445,6 @@ export default function FeedbackForm() {
             <p className="text-xs text-gray-500">📍 {t.location}</p>
             <p className="text-xs text-gray-500">
               📞{' '}
-              <a href="tel:01-519296" className="text-red-700 hover:underline">०१-५१९२९६</a>,{' '}
-              <a href="tel:01-519947" className="text-red-700 hover:underline">०१-५१९९४७</a>,{' '}
               <a href="tel:01-5199348" className="text-red-700 hover:underline">०१-५१९९३४८</a>
             </p>
             <p className="text-xs text-gray-500">
@@ -455,21 +453,6 @@ export default function FeedbackForm() {
                 iro-koteshwor@ird.gov.np
               </a>
             </p>
-          </div>
-
-          {/* Key Staff */}
-          <div className="bg-white/80 rounded-xl p-4 border border-gray-100">
-            <p className="text-xs font-semibold text-gray-600 text-center mb-2">{t.keyStaff}</p>
-            <div className="space-y-1.5">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-gray-700 font-medium">{t.staff1}</span>
-                <span className="text-gray-500">{t.staff1Role}</span>
-              </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-gray-700 font-medium">{t.staff2}</span>
-                <span className="text-gray-500">{t.staff2Role}</span>
-              </div>
-            </div>
           </div>
 
           {/* Links */}
