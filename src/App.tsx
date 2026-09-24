@@ -5,7 +5,6 @@ import FeedbackForm from './components/FeedbackForm';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import QRPrint from './components/QRPrint';
-import PreviousComplaintsDropdown from './components/PreviousComplaintsDropdown';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuth = localStorage.getItem('iro-admin-auth') === 'true';
@@ -33,8 +32,6 @@ export default function App() {
             }
           />
         </Routes>
-        {/* Previous Complaints Dropdown - appears on all public pages */}
-        <PreviousComplaintsDropdown />
       </LanguageProvider>
     </BrowserRouter>
   );
