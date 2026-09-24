@@ -11,6 +11,76 @@ import {
 } from '../utils/storage';
 import ComplaintModal from './ComplaintModal';
 
+// Complaint Card Component
+interface ComplaintCardProps {
+  complaint: Complaint;
+  lang: string;
+  t: any;
+  onViewDetails: () => void;
+}
+
+function ComplaintCard({ complaint, lang, t, onViewDetails }: ComplaintCardProps) {
+  return (
+    <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          {/* ID & Status */}
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span className="text-xs font-mono font-bold text-red-700">{complaint.id}</span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+              complaint.status === 'Responded' 
+                ? 'bg-green-100 text-green-700' 
+                : 'bg-yellow-100 text-yellow-700'
+            }`}>
+              {complaint.status === 'Responded' ? '✅ Responded' : '⏳ Pending'}
+            </span>
+          </div>
+
+          {/* Service & Category */}
+          <div className="flex gap-2 mb-2 flex-wrap">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-700">
+              {complaint.service}
+            </span>
+            <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+              complaint.category === 'Praise' ? 'bg-green-100 text-green-700' :
+              complaint.category === 'Suggestion' ? 'bg-blue-100 text-blue-700' :
+              complaint.category === 'Complaint' ? 'bg-red-100 text-red-700' :
+              'bg-orange-100 text-orange-700'
+            }`}>
+              {complaint.category}
+            </span>
+          </div>
+
+          {/* Name & Date */}
+          <div className="flex items-center gap-3 text-xs text-gray-600">
+            <span className="font-medium">{complaint.name}</span>
+            <span>•</span>
+            <span>{complaint.date}</span>
+          </div>
+
+          {/* Details/Comment Preview - PROMINENT */}
+          {complaint.details && (
+            <div className="mt-2 bg-gray-50 rounded-lg p-2.5 border-l-4 border-blue-400">
+              <p className="text-[10px] font-semibold text-blue-700 mb-0.5">💬 {lang === 'np' ? 'विवरण/टिप्पणी' : 'Details/Comment'}:</p>
+              <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed">
+                {complaint.details}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Action Button */}
+        <button
+          onClick={onViewDetails}
+          className="px-4 py-2 text-xs font-medium bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors whitespace-nowrap"
+        >
+          👁 {t.viewDetails}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const { lang } = useLanguage();
   const t = translations[lang];
@@ -77,6 +147,45 @@ export default function AdminDashboard() {
   const filteredComplaints = filterCategory === 'all'
     ? complaints
     : complaints.filter(c => c.category === filterCategory);
+
+  // Group complaints by date
+  const groupByDate = (complaints: Complaint[]) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const weekAgo = new Date(today);
+    weekAgo.setDate(weekAgo.getDate() - 7);
+
+    const groups = {
+      today: [] as Complaint[],
+      yesterday: [] as Complaint[],
+      thisWeek: [] as Complaint[],
+      older: [] as Complaint[]
+    };
+
+    complaints.forEach(complaint => {
+      // Parse the date from the complaint (format: YYYY-MM-DD)
+      const complaintDate = new Date(complaint.date);
+      complaintDate.setHours(0, 0, 0, 0);
+
+      if (complaintDate.getTime() === today.getTime()) {
+        groups.today.push(complaint);
+      } else if (complaintDate.getTime() === yesterday.getTime()) {
+        groups.yesterday.push(complaint);
+      } else if (complaintDate >= weekAgo) {
+        groups.thisWeek.push(complaint);
+      } else {
+        groups.older.push(complaint);
+      }
+    });
+
+    return groups;
+  };
+
+  const groupedComplaints = groupByDate(filteredComplaints);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -213,69 +322,114 @@ export default function AdminDashboard() {
             <p className="text-gray-500">{t.noFeedbacks}</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {filteredComplaints.map((complaint) => (
-              <div
-                key={complaint.id}
-                className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    {/* ID & Status */}
-                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <span className="text-xs font-mono font-bold text-red-700">{complaint.id}</span>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                        complaint.status === 'Responded' 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-yellow-100 text-yellow-700'
-                      }`}>
-                        {complaint.status === 'Responded' ? '✅ Responded' : '⏳ Pending'}
-                      </span>
-                    </div>
-
-                    {/* Service & Category */}
-                    <div className="flex gap-2 mb-2 flex-wrap">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-700">
-                        {complaint.service}
-                      </span>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                        complaint.category === 'Praise' ? 'bg-green-100 text-green-700' :
-                        complaint.category === 'Suggestion' ? 'bg-blue-100 text-blue-700' :
-                        complaint.category === 'Complaint' ? 'bg-red-100 text-red-700' :
-                        'bg-orange-100 text-orange-700'
-                      }`}>
-                        {complaint.category}
-                      </span>
-                    </div>
-
-                    {/* Name & Date */}
-                    <div className="flex items-center gap-3 text-xs text-gray-600">
-                      <span className="font-medium">{complaint.name}</span>
-                      <span>•</span>
-                      <span>{complaint.date}</span>
-                    </div>
-
-                    {/* Details/Comment Preview - PROMINENT */}
-                    {complaint.details && (
-                      <div className="mt-2 bg-gray-50 rounded-lg p-2.5 border-l-4 border-blue-400">
-                        <p className="text-[10px] font-semibold text-blue-700 mb-0.5">💬 {lang === 'np' ? 'विवरण/टिप्पणी' : 'Details/Comment'}:</p>
-                        <p className="text-xs text-gray-700 line-clamp-3 leading-relaxed">
-                          {complaint.details}
-                        </p>
-                      </div>
-                    )}
+          <div className="space-y-6">
+            {/* Today's Complaints */}
+            {groupedComplaints.today.length > 0 && (
+              <div>
+                <div className="sticky top-0 z-10 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-t-xl shadow-md">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-sm">
+                      {lang === 'np' ? 'आज' : 'Today'}
+                    </h3>
+                    <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                      {groupedComplaints.today.length}
+                    </span>
                   </div>
-
-                  {/* Action Button */}
-                  <button
-                    onClick={() => setSelectedComplaint(complaint)}
-                    className="px-4 py-2 text-xs font-medium bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors whitespace-nowrap"
-                  >
-                    👁 {t.viewDetails}
-                  </button>
+                </div>
+                <div className="space-y-3 bg-green-50 p-3 rounded-b-xl">
+                  {groupedComplaints.today.map((complaint) => (
+                    <ComplaintCard 
+                      key={complaint.id} 
+                      complaint={complaint} 
+                      lang={lang} 
+                      t={t}
+                      onViewDetails={() => setSelectedComplaint(complaint)}
+                    />
+                  ))}
                 </div>
               </div>
-            ))}
+            )}
+
+            {/* Yesterday's Complaints */}
+            {groupedComplaints.yesterday.length > 0 && (
+              <div>
+                <div className="sticky top-0 z-10 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-t-xl shadow-md">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-sm">
+                      {lang === 'np' ? 'हिजो' : 'Yesterday'}
+                    </h3>
+                    <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                      {groupedComplaints.yesterday.length}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-3 bg-blue-50 p-3 rounded-b-xl">
+                  {groupedComplaints.yesterday.map((complaint) => (
+                    <ComplaintCard 
+                      key={complaint.id} 
+                      complaint={complaint} 
+                      lang={lang} 
+                      t={t}
+                      onViewDetails={() => setSelectedComplaint(complaint)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* This Week's Complaints */}
+            {groupedComplaints.thisWeek.length > 0 && (
+              <div>
+                <div className="sticky top-0 z-10 bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-t-xl shadow-md">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-sm">
+                      {lang === 'np' ? 'यो हप्ता' : 'This Week'}
+                    </h3>
+                    <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                      {groupedComplaints.thisWeek.length}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-3 bg-purple-50 p-3 rounded-b-xl">
+                  {groupedComplaints.thisWeek.map((complaint) => (
+                    <ComplaintCard 
+                      key={complaint.id} 
+                      complaint={complaint} 
+                      lang={lang} 
+                      t={t}
+                      onViewDetails={() => setSelectedComplaint(complaint)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Older Complaints */}
+            {groupedComplaints.older.length > 0 && (
+              <div>
+                <div className="sticky top-0 z-10 bg-gradient-to-r from-gray-500 to-gray-600 text-white px-4 py-2 rounded-t-xl shadow-md">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-sm">
+                      {lang === 'np' ? 'पुरानो' : 'Older'}
+                    </h3>
+                    <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                      {groupedComplaints.older.length}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-3 bg-gray-50 p-3 rounded-b-xl">
+                  {groupedComplaints.older.map((complaint) => (
+                    <ComplaintCard 
+                      key={complaint.id} 
+                      complaint={complaint} 
+                      lang={lang} 
+                      t={t}
+                      onViewDetails={() => setSelectedComplaint(complaint)}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -152,6 +152,18 @@ export default function FeedbackForm() {
         setTrackingCode(complaintId);
         setShowSuccess(true);
 
+        // Save to localStorage for Previous Complaints feature
+        const newComplaint = {
+          code: complaintId,
+          service: serviceNames[serviceType],
+          status: 'Pending',
+          date: new Date().toISOString().split('T')[0]
+        };
+        
+        const existingComplaints = JSON.parse(localStorage.getItem('my_complaints') || '[]');
+        const updatedComplaints = [newComplaint, ...existingComplaints];
+        localStorage.setItem('my_complaints', JSON.stringify(updatedComplaints));
+
         // Reset form
         setIsAnonymous(false);
         setServiceType('help_desk');
